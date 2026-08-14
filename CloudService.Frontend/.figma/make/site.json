@@ -1,0 +1,10 @@
+{
+  "description": "Create high-converting landing pages for enterprise cloud hosting with a modern dark mode design, enhancing user engagement and conversion rates.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
