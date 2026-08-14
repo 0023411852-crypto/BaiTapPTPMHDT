@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 type Billing = 'monthly' | 'annual'
 
@@ -26,6 +27,7 @@ const plans = [
     ],
     cta: 'Bắt đầu ngay',
     highlight: false,
+    qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=NovaCloud-Starter&color=1e293b&bgcolor=e2e8f0'
   },
   {
     name: 'Pro',
@@ -49,6 +51,7 @@ const plans = [
     ],
     cta: 'Mua Ngay',
     highlight: true,
+    qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=NovaCloud-Pro&color=1e40af&bgcolor=bfdbfe'
   },
   {
     name: 'Enterprise',
@@ -72,6 +75,7 @@ const plans = [
     ],
     cta: 'Liên hệ kinh doanh',
     highlight: false,
+    qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=NovaCloud-Enterprise&color=3730a3&bgcolor=c7d2fe'
   },
 ]
 
@@ -203,7 +207,7 @@ export default function Pricing() {
               </div>
 
               {/* Features */}
-              <div className="mb-8 flex-1">
+              <div className="mb-6 flex-1">
                 <div className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Tiện ích kèm theo</div>
                 <ul className="space-y-2.5">
                   {plan.features.map((feature) => (
@@ -218,8 +222,17 @@ export default function Pricing() {
                 </ul>
               </div>
 
-              <button
-                className="w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200"
+              {/* QR Code integration */}
+              <div className="mb-6 flex flex-col items-center justify-center p-3 rounded-xl border border-slate-700/50 bg-[#050c1a]">
+                <span className="text-xs text-slate-500 mb-2">Quét mã QR để đặt qua Mobile</span>
+                <div className="p-1.5 bg-white rounded-lg">
+                  <img src={plan.qrCode} alt={`QR Code ${plan.name}`} className="w-20 h-20" />
+                </div>
+              </div>
+
+              <Link
+                href="/order"
+                className="block text-center w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200"
                 style={
                   plan.highlight
                     ? { background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: 'white', boxShadow: '0 0 20px rgba(99,102,241,0.4)' }
@@ -237,7 +250,7 @@ export default function Pricing() {
                 }}
               >
                 {plan.cta}
-              </button>
+              </Link>
             </div>
           ))}
         </div>

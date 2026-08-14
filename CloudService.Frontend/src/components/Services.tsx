@@ -24,11 +24,36 @@ const services = [
         <path d="M14 4c-2.5 3-4 6.3-4 10s1.5 7 4 10M14 4c2.5 3 4 6.3 4 10s-1.5 7-4 10M4 14h20" stroke="currentColor" strokeWidth="1.5"/>
       </svg>
     ),
-    title: 'Lưu trữ khối & Đối tượng',
-    subtitle: 'Block & Object Storage',
-    desc: 'Lưu trữ an toàn, mở rộng vô hạn với hiệu suất I/O vượt trội. Tương thích chuẩn API S3 và sao lưu tự động.',
-    features: ['Lưu trữ khối (Block Storage)', 'Lưu trữ đối tượng (S3 API)', 'Sao lưu dữ liệu tự động'],
+    title: 'Web Hosting',
+    subtitle: 'Shared & Dedicated Hosting',
+    desc: 'Lưu trữ website tốc độ cao với bảng điều khiển cPanel/DirectAdmin, tối ưu riêng cho WordPress và ứng dụng PHP.',
+    features: ['SSD NVMe siêu tốc', 'Backup tự động mỗi ngày', 'Hỗ trợ SSL miễn phí'],
     color: '#22d3ee',
+  },
+  {
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M12 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-6l-2-2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+        <path d="M8 12h12M8 16h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+    title: 'Đăng ký Tên Miền',
+    subtitle: 'Domain Registration',
+    desc: 'Tìm kiếm và đăng ký tên miền quốc tế (.com, .net) và tên miền quốc gia (.vn) với hệ thống quản lý DNS siêu tốc.',
+    features: ['Hàng trăm đuôi mở rộng', 'Quản lý bản ghi DNS thông minh', 'Bảo mật Whois ẩn danh'],
+    color: '#8b5cf6',
+  },
+  {
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M4 8l10 6 10-6M4 8v12a2 2 0 002 2h16a2 2 0 002-2V8M4 8l10 6 10-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    title: 'Email Doanh Nghiệp',
+    subtitle: 'Business Email',
+    desc: 'Hệ thống email theo tên miền riêng chuyên nghiệp, tăng độ uy tín với khách hàng, tích hợp lọc thư rác AI.',
+    features: ['Giao diện Webmail hiện đại', 'Chống Spam & Virus 99.9%', 'Đồng bộ Outlook, Gmail'],
+    color: '#ec4899',
   },
   {
     icon: (
@@ -47,35 +72,6 @@ const services = [
   {
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <path d="M6 12V8C6 5.791 7.791 4 10 4h8c2.209 0 4 1.791 4 4v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-        <rect x="3" y="12" width="22" height="12" rx="3" stroke="currentColor" strokeWidth="1.5"/>
-        <circle cx="9" cy="18" r="1.5" fill="currentColor" opacity="0.6"/>
-        <circle cx="14" cy="18" r="1.5" fill="currentColor" opacity="0.6"/>
-        <circle cx="19" cy="18" r="1.5" fill="currentColor" opacity="0.6"/>
-      </svg>
-    ),
-    title: 'Mạng & Phân phối',
-    subtitle: 'Networking & CDN',
-    desc: 'Mạng lưới tốc độ cao, độ trễ thấp toàn cầu. Cân bằng tải, mạng riêng ảo và mạng lưới phân phối nội dung.',
-    features: ['CDN Toàn cầu (180+ PoP)', 'Cân bằng tải (Load Balancer)', 'Mạng riêng ảo (VPC)'],
-    color: '#10b981',
-  },
-  {
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <path d="M14 4L24 9V19L14 24L4 19V9L14 4Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-        <path d="M14 4V24M4 9L24 19M24 9L4 19" stroke="currentColor" strokeWidth="1" strokeOpacity="0.4"/>
-      </svg>
-    ),
-    title: 'Dịch vụ Kubernetes',
-    subtitle: 'Kubernetes Engine',
-    desc: 'Triển khai, quản lý và mở rộng các ứng dụng container hóa thông qua cụm K8s được quản lý hoàn toàn.',
-    features: ['Cụm K8s sẵn sàng cho Production', 'Tự phục hồi Node', 'Tích hợp CI/CD mượt mà'],
-    color: '#f59e0b',
-  },
-  {
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
         <path d="M4 14C4 8.477 8.477 4 14 4s10 4.477 10 10-4.477 10-10 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         <path d="M4 20l3-3m0 0l3 3m-3-3v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         <circle cx="14" cy="14" r="4" stroke="currentColor" strokeWidth="1.5"/>
@@ -84,7 +80,7 @@ const services = [
     title: 'Bảo mật & Chứng nhận',
     subtitle: 'Security & Compliance',
     desc: 'Giải pháp an ninh đám mây toàn diện, bảo vệ khỏi các cuộc tấn công DDoS và tuân thủ các chuẩn bảo mật quốc tế.',
-    features: ['Bảo vệ chống DDoS 20 Tbps', 'Tường lửa ứng dụng web (WAF)', 'Tuân thủ SOC2 & ISO 27001'],
+    features: ['Bảo vệ chống DDoS 20 Tbps', 'Tường lửa ứng dụng web (WAF)', 'Chứng chỉ SSL Sectigo/DigiCert'],
     color: '#ef4444',
   },
 ]
@@ -98,14 +94,14 @@ export default function Services() {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full text-xs font-mono text-blue-400 border border-blue-400/20 bg-blue-400/5">
-            HẠ TẦNG
+            HẠ TẦNG VÀ DỊCH VỤ
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Tất cả những gì hệ thống của bạn cần,<br />
             <span className="gradient-text">tại cùng một nơi</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-            Từ máy chủ vật lý đến Kubernetes — NovaCloud cung cấp toàn bộ công nghệ hạ tầng cho các đội ngũ phát triển hiện đại.
+            Từ máy chủ ảo VPS, Hosting, Tên miền đến hệ thống bảo mật SSL chống DDoS — NovaCloud cung cấp trọn gói giải pháp doanh nghiệp.
           </p>
         </div>
 
