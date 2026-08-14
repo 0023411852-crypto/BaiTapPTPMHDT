@@ -25,3 +25,17 @@
 - [x] Tạo Entities, Enums, Interfaces.
 - [x] Tạo DbContext, FluentAPI, Repository, UoW.
 - [x] Tạo Database.
+
+# Giai đoạn 3: Session Management & Idle Timeout (Đã hoàn thành)
+- [x] **1. Global Exception Handling (ProblemDetails)**
+  - [x] Tạo thư mục `Exceptions` ở `Domain` và thêm `NotFoundException`, `ConflictException`, `ValidationException`, `UnauthorizedException`.
+  - [x] Tạo `ExceptionMiddleware` ở `WebApi/Middlewares`.
+  - [x] Đăng ký `ExceptionMiddleware` vào `Program.cs`.
+  - [x] Thay thế `throw new Exception` bằng Custom Exceptions trong `AuthService` và `UserService`.
+- [x] **2. Tầng Application (Auth & User)**
+  - [x] Cập nhật DTOs cho Login (thêm Refresh Token).
+  - [x] Cập nhật `AuthService`: Login, RefreshToken, Logout.
+  - [x] Cập nhật `UserService`: Khóa tài khoản/Đổi mật khẩu revoke session.
+- [x] **3. Middleware & API**
+  - [x] Tạo `SessionActivityMiddleware`.
+  - [x] Đăng ký Middleware vào `Program.cs`.
