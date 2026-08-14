@@ -1,4 +1,7 @@
+'use client';
+
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 const navLinks = [
   { label: 'Dịch vụ', href: '#services' },
@@ -60,8 +63,8 @@ export default function Navbar() {
 
         {/* CTA buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <a
-            href="#"
+          <Link
+            href="/login"
             className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg border transition-all duration-200"
             style={{ borderColor: 'rgba(99, 179, 255, 0.25)', background: 'transparent' }}
             onMouseEnter={e => {
@@ -74,7 +77,7 @@ export default function Navbar() {
             }}
           >
             Đăng nhập
-          </a>
+          </Link>
           <a
             href="#"
             className="btn-glow px-5 py-2 text-sm font-semibold text-white rounded-lg"
@@ -114,7 +117,7 @@ export default function Navbar() {
               </a>
             ))}
             <div className="pt-3 flex flex-col gap-2">
-              <a href="#" className="px-4 py-2.5 text-sm font-medium text-slate-300 text-center rounded-lg border border-white/15">Đăng nhập</a>
+              <Link href="/login" className="px-4 py-2.5 text-sm font-medium text-slate-300 text-center rounded-lg border border-white/15">Đăng nhập</Link>
               <a href="#" className="btn-glow px-4 py-2.5 text-sm font-semibold text-white text-center rounded-lg">Bắt đầu ngay</a>
             </div>
           </div>

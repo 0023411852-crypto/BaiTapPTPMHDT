@@ -1,3 +1,5 @@
+'use client'
+
 const articles = [
   {
     category: 'Cập nhật sản phẩm',
