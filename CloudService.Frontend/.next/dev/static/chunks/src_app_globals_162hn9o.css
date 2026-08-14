@@ -1483,6 +1483,10 @@
     font-family: var(--font-mono);
   }
 
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+
   .text-2xl {
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
@@ -1848,6 +1852,11 @@
       translate: var(--tw-translate-x) var(--tw-translate-y);
     }
 
+    .hover\:-translate-y-1:hover {
+      --tw-translate-y: calc(var(--spacing) * -1);
+      translate: var(--tw-translate-x) var(--tw-translate-y);
+    }
+
     .hover\:-translate-y-\[2px\]:hover {
       --tw-translate-y: calc(2px * -1);
       translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -1855,6 +1864,16 @@
 
     .hover\:scale-\[1\.02\]:hover {
       scale: 1.02;
+    }
+
+    .hover\:border-blue-400\/50:hover {
+      border-color: #54a2ff80;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:border-blue-400\/50:hover {
+        border-color: color-mix(in oklab, var(--color-blue-400) 50%, transparent);
+      }
     }
 
     .hover\:border-blue-500\/30:hover {
@@ -1878,6 +1897,16 @@
     @supports (color: color-mix(in lab, red, red)) {
       .hover\:border-white\/28:hover {
         border-color: color-mix(in oklab, var(--color-white) 28%, transparent);
+      }
+    }
+
+    .hover\:bg-blue-500\/20:hover {
+      background-color: #3080ff33;
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-blue-500\/20:hover {
+        background-color: color-mix(in oklab, var(--color-blue-500) 20%, transparent);
       }
     }
 
@@ -1939,8 +1968,9 @@
       color: var(--color-white);
     }
 
-    .hover\:underline:hover {
-      text-decoration-line: underline;
+    .hover\:shadow-\[0_4px_15px_rgba\(59\,130\,246\,0\.3\)\]:hover {
+      --tw-shadow: 0 4px 15px var(--tw-shadow-color, #3b82f64d);
+      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     }
   }
 
@@ -2024,6 +2054,10 @@
 
     .md\:px-16 {
       padding-inline: calc(var(--spacing) * 16);
+    }
+
+    .md\:text-left {
+      text-align: left;
     }
 
     .md\:text-2xl {
@@ -2281,6 +2315,26 @@ body {
 
 .accent-gradient {
   background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+}
+
+input:-webkit-autofill {
+  transition: background-color 5000s ease-in-out;
+  -webkit-text-fill-color: white !important;
+}
+
+input:-webkit-autofill:hover {
+  transition: background-color 5000s ease-in-out;
+  -webkit-text-fill-color: white !important;
+}
+
+input:-webkit-autofill:focus {
+  transition: background-color 5000s ease-in-out;
+  -webkit-text-fill-color: white !important;
+}
+
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out;
+  -webkit-text-fill-color: white !important;
 }
 
 @property --tw-translate-x {
