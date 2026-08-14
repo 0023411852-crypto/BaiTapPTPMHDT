@@ -1,3 +1,5 @@
+'use client';
+
 const footerLinks = {
   'Sản phẩm': ['Máy chủ ảo (VPS)', 'Máy chủ chuyên dụng', 'Lưu trữ đối tượng', 'Dịch vụ Kubernetes', 'CDN Toàn cầu', 'Bảo vệ chống DDoS'],
   'Công ty': ['Về chúng tôi', 'Tuyển dụng', 'Tài liệu báo chí', 'Blog', 'Nhà đầu tư', 'Liên hệ'],
