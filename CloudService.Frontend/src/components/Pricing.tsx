@@ -221,7 +221,7 @@ export default function Pricing() {
               <div className="mb-4 bg-slate-900/40 rounded-xl p-4 border border-slate-700/50">
                 <div className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Cấu hình</div>
                 <ul className="space-y-2">
-                  {plan.specs.map((spec) => (
+                  {plan.specs.map((spec: string) => (
                     <li key={spec} className="flex items-center gap-2 text-sm text-white font-medium">
                       <span className="w-1.5 h-1.5 rounded-full" style={{ background: plan.color }} />
                       {spec}
@@ -234,7 +234,7 @@ export default function Pricing() {
               <div className="mb-8 flex-1">
                 <div className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Tiện ích kèm theo</div>
                 <ul className="space-y-2.5">
-                  {plan.features.map((feature) => (
+                  {plan.features.map((feature: string) => (
                     <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-300">
                       <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 16 16" fill="none" style={{ color: plan.color }}>
                         <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.2" opacity="0.4"/>
