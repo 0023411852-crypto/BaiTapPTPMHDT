@@ -3,31 +3,46 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-export default function Login() {
+export default function Register() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
+    
+    if (password !== confirmPassword) {
+      setError('Mật khẩu nhập lại không khớp.');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const res = await fetch('https://localhost:7001/api/Auth/login', {
+      const res = await fetch('https://localhost:7001/api/Auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ fullName, email, password })
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || 'Đăng nhập thất bại');
+        throw new Error(data.message || 'Đăng ký thất bại');
       }
-      localStorage.setItem('token', data.token);
-      router.push('/');
+      
+      setSuccess('Đăng ký thành công! Đang chuyển hướng...');
+      setTimeout(() => {
+        router.push('/login');
+      }, 1500);
+      
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -189,22 +204,36 @@ void main() {
           </p>
         </div>
 
-        {/* Right Column: Login Form */}
+        {/* Right Column: Register Form */}
         <div className="w-full max-w-md flex-1">
           <div className="glass-panel rounded-2xl p-8 md:p-10 shadow-2xl relative overflow-hidden">
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
             
             <div className="mb-8">
-              <h2 className="text-3xl font-bold text-white mb-2 font-display">Đăng nhập</h2>
-              <p className="text-sm text-on-surface-variant">Nhập thông tin của bạn để truy cập bảng điều khiển.</p>
+              <h2 className="text-3xl font-bold text-white mb-2 font-display">Đăng ký</h2>
+              <p className="text-sm text-on-surface-variant">Tạo tài khoản mới để trải nghiệm dịch vụ.</p>
             </div>
             
-            <form className="space-y-6 flex flex-col" onSubmit={handleLogin}>
+            <form className="space-y-4 flex flex-col" onSubmit={handleRegister}>
               {error && (
                 <div className="bg-red-500/10 border border-red-500/50 text-red-500 text-sm p-3 rounded-lg">
                   {error}
                 </div>
               )}
+              {success && (
+                <div className="bg-green-500/10 border border-green-500/50 text-green-400 text-sm p-3 rounded-lg">
+                  {success}
+                </div>
+              )}
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-1" htmlFor="fullName">Họ và Tên</label>
+                <div className="input-field rounded-t-lg px-4 py-3 flex items-center gap-3 relative">
+                  <svg className="w-5 h-5 text-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                  <input className="w-full bg-transparent border-none focus:ring-0 text-white placeholder:text-outline-variant outline-none" id="fullName" placeholder="Nguyễn Văn A" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                </div>
+              </div>
+
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-1" htmlFor="email">Email</label>
                 <div className="input-field rounded-t-lg px-4 py-3 flex items-center gap-3 relative">
@@ -216,7 +245,6 @@ void main() {
               <div className="flex flex-col gap-1">
                 <div className="flex justify-between items-center mb-1">
                   <label className="text-xs font-semibold text-on-surface-variant tracking-wide uppercase" htmlFor="password">Mật khẩu</label>
-                  <a className="text-xs font-semibold text-primary hover:text-primary-fixed transition-colors" href="#">Quên mật khẩu?</a>
                 </div>
                 <div className="input-field rounded-t-lg px-4 py-3 flex items-center gap-3 relative">
                   <svg className="w-5 h-5 text-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -230,14 +258,24 @@ void main() {
                   </button>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-2">
-                <input className="rounded bg-surface-container border-outline-variant text-primary focus:ring-primary/50" id="remember" type="checkbox"/>
-                <label className="text-sm font-medium text-on-surface-variant" htmlFor="remember">Ghi nhớ đăng nhập</label>
+
+              <div className="flex flex-col gap-1">
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-semibold text-on-surface-variant tracking-wide uppercase" htmlFor="confirmPassword">Nhập lại mật khẩu</label>
+                </div>
+                <div className="input-field rounded-t-lg px-4 py-3 flex items-center gap-3 relative">
+                  <svg className="w-5 h-5 text-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                  <input className="w-full bg-transparent border-none focus:ring-0 text-white placeholder:text-outline-variant outline-none" id="confirmPassword" placeholder="••••••••" type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+                </div>
               </div>
               
-              <button disabled={isLoading} className="accent-gradient text-white w-full py-4 rounded-xl font-bold shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:scale-[1.02] hover:-translate-y-[2px] transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:translate-y-0" type="submit">
-                {isLoading ? 'Đang xử lý...' : 'Đăng nhập'}
+              <div className="flex items-center gap-2 mt-2">
+                <input className="rounded bg-surface-container border-outline-variant text-primary focus:ring-primary/50" id="terms" type="checkbox" required/>
+                <label className="text-sm font-medium text-on-surface-variant" htmlFor="terms">Đồng ý với điều khoản dịch vụ</label>
+              </div>
+              
+              <button disabled={isLoading} className="accent-gradient text-white w-full py-4 rounded-xl font-bold shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:scale-[1.02] hover:-translate-y-[2px] transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:translate-y-0 mt-4" type="submit">
+                {isLoading ? 'Đang xử lý...' : 'Tạo tài khoản'}
               </button>
             </form>
             
@@ -259,7 +297,7 @@ void main() {
             </div>
             
             <div className="mt-8 text-center">
-              <p className="text-sm text-on-surface-variant">Chưa có tài khoản? <Link className="text-primary hover:text-primary-fixed transition-colors font-medium" href="/register">Đăng ký ngay</Link></p>
+              <p className="text-sm text-on-surface-variant">Đã có tài khoản? <Link className="text-primary hover:text-primary-fixed transition-colors font-medium" href="/login">Đăng nhập</Link></p>
             </div>
           </div>
         </div>

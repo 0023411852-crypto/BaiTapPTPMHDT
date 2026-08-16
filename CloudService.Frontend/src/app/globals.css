@@ -223,3 +223,12 @@ body {
 .accent-gradient {
   background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
 }
+
+/* Fix browser autofill background for transparent inputs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: white !important;
+}

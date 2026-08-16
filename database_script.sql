@@ -1,4 +1,4 @@
-﻿IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
         [MigrationId] nvarchar(150) NOT NULL,
@@ -320,6 +320,76 @@ IF NOT EXISTS (
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'20260810120325_InitialCreate', N'8.0.0');
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260810120325_InitialCreate'
+)
+BEGIN
+    CREATE TABLE [Testimonials] (
+        [Id] uniqueidentifier NOT NULL,
+        [CustomerName] nvarchar(max) NOT NULL,
+        [CompanyName] nvarchar(max) NOT NULL,
+        [AvatarUrl] nvarchar(max) NOT NULL,
+        [Content] nvarchar(max) NOT NULL,
+        [Rating] int NOT NULL,
+        [IsVisible] bit NOT NULL,
+        [CreatedAt] datetime2 NOT NULL,
+        [UpdatedAt] datetime2 NULL,
+        CONSTRAINT [PK_Testimonials] PRIMARY KEY ([Id])
+    );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260810120325_InitialCreate'
+)
+BEGIN
+    CREATE TABLE [Contacts] (
+        [Id] uniqueidentifier NOT NULL,
+        [FullName] nvarchar(max) NOT NULL,
+        [Email] nvarchar(max) NOT NULL,
+        [PhoneNumber] nvarchar(max) NOT NULL,
+        [Subject] nvarchar(max) NOT NULL,
+        [Message] nvarchar(max) NOT NULL,
+        [Status] int NOT NULL,
+        [CreatedAt] datetime2 NOT NULL,
+        [UpdatedAt] datetime2 NULL,
+        CONSTRAINT [PK_Contacts] PRIMARY KEY ([Id])
+    );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260810120325_InitialCreate'
+)
+BEGIN
+    CREATE TABLE [UserSessions] (
+        [Id] uniqueidentifier NOT NULL,
+        [UserId] uniqueidentifier NOT NULL,
+        [Token] nvarchar(max) NOT NULL,
+        [IpAddress] nvarchar(max) NOT NULL,
+        [UserAgent] nvarchar(max) NOT NULL,
+        [ExpiresAt] datetime2 NOT NULL,
+        [IsRevoked] bit NOT NULL,
+        [CreatedAt] datetime2 NOT NULL,
+        [UpdatedAt] datetime2 NULL,
+        CONSTRAINT [PK_UserSessions] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_UserSessions_AppUsers_UserId] FOREIGN KEY ([UserId]) REFERENCES [AppUsers] ([Id]) ON DELETE CASCADE
+    );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260810120325_InitialCreate'
+)
+BEGIN
+    CREATE INDEX [IX_UserSessions_UserId] ON [UserSessions] ([UserId]);
 END;
 GO
 

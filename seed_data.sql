@@ -41,3 +41,21 @@ VALUES
 -- Giá cho VPS PRO 2
 (NEWID(), @PlanVps2Id, 1, 189000, 0, GETUTCDATE(), NULL),
 (NEWID(), @PlanVps2Id, 12, 2000000, 0, GETUTCDATE(), NULL);
+
+-- 5. Thêm tài khoản Admin mặc định
+DECLARE @AdminUserId UNIQUEIDENTIFIER = NEWID();
+INSERT INTO [AppUsers] ([Id], [FullName], [Email], [PasswordHash], [IsActive], [RoleId], [CreatedAt], [UpdatedAt])
+VALUES 
+-- Mật khẩu mặc định là: 123456aA@ (Mã hash Bcrypt ví dụ)
+(@AdminUserId, 'Quản trị viên', 'admin@novacloud.vn', '$2a$11$w1pIub03zZJ16qX4oI6M4eF33jR8TzHj04g92qC.N0qD1g1vI9MDe', 1, @AdminRoleId, GETUTCDATE(), NULL);
+
+-- 6. Thêm bài báo Tin Tức (News)
+INSERT INTO [NewsArticles] ([Id], [Title], [Content], [Slug], [Category], [IsPublished], [AuthorId], [CreatedAt], [UpdatedAt])
+VALUES 
+(NEWID(), 'NovaCloud ra mắt Engine tự động mở rộng AI', '<p>Giải pháp mới giúp doanh nghiệp tự động scale tài nguyên...</p>', 'novacloud-ai-auto-scaling', 'Cập nhật sản phẩm', 1, @AdminUserId, GETUTCDATE(), NULL),
+(NEWID(), 'Các điểm PoP mới tại Châu Á', '<p>Mở rộng hạ tầng mạng toàn cầu, giảm độ trễ...</p>', 'pop-moi-chau-a', 'Hạ tầng', 1, @AdminUserId, GETUTCDATE(), NULL);
+
+-- 7. Thêm mã Khuyến mãi (Promotions)
+INSERT INTO [Promotions] ([Id], [ServicePlanId], [Code], [DiscountPercentage], [StartDate], [EndDate], [IsActive], [CreatedAt], [UpdatedAt])
+VALUES 
+(NEWID(), @PlanVps2Id, 'SUMMER2026', 15.00, GETUTCDATE(), DATEADD(month, 1, GETUTCDATE()), 1, GETUTCDATE(), NULL);
