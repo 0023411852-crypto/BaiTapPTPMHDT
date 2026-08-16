@@ -11,6 +11,9 @@ function CheckoutContent() {
   
   const [plan, setPlan] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [notes, setNotes] = useState('');
 
   useEffect(() => {
     // 1. Auth check
@@ -55,6 +58,51 @@ function CheckoutContent() {
   // Mock price logic since backend might not have pricing logic directly on ServicePlan model
   const price = billing === 'monthly' ? 29 : 23 * 12; // Placeholder
 
+  const handleCreateOrder = async () => {
+    setIsSubmitting(true);
+    setErrorMsg('');
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('Vui lòng đăng nhập lại.');
+
+      // Yêu cầu của Backend DTO (CreateOrderDto):
+      // - ServicePlanId (Guid)
+      // - PlanPriceId (Guid)
+      // - PromotionId (Guid?)
+      // - CustomerNotes (string?)
+      // Do Backend (/api/ServicePlans) hiện không trả về PlanPriceId,
+      // Frontend tạm thời truyền một GUID ngẫu nhiên hoặc planId để pass validate,
+      // nếu backend báo lỗi "Plan Price not found" thì sẽ hiển thị thông báo.
+      const payload = {
+        ServicePlanId: plan.id,
+        PlanPriceId: '11111111-1111-1111-1111-111111111111', // GUID giả vì API thiếu dữ liệu
+        CustomerNotes: notes
+      };
+
+      const res = await fetch('http://localhost:5154/api/Orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (res.ok && data.data && data.data.id) {
+        // Có orderId thực tế từ backend
+        router.push(`/payment?orderId=${data.data.id}&amount=${data.data.totalAmount || price}`);
+      } else {
+        throw new Error(data.message || 'Lỗi khi tạo đơn hàng.');
+      }
+    } catch (e: any) {
+      setErrorMsg(e.message || 'Lỗi không xác định.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
     <div className="container mx-auto px-4 py-20 min-h-screen">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
         
@@ -128,16 +176,29 @@ function CheckoutContent() {
                 className="w-full bg-[#0a1628]/50 border border-[rgba(99,179,255,0.12)] rounded-lg p-4 text-white placeholder:text-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors resize-none h-32" 
                 id="order-notes" 
                 placeholder="Yêu cầu cấu hình đặc biệt..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
               ></textarea>
             </div>
             
+            {errorMsg && (
+              <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg text-sm relative z-10">
+                {errorMsg}
+                <div className="text-xs mt-1 text-slate-400">
+                  *Ghi chú: Frontend truyền thiếu PlanPriceId do API ServicePlans không cung cấp.
+                </div>
+              </div>
+            )}
+            
             <div className="mt-auto pt-6 relative z-10">
-              <Link href="/payment" className="block w-full">
-                <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-[0_0_20px_rgba(59,130,246,0.3)] rounded-lg py-4 px-6 flex items-center justify-center gap-2 text-white text-lg font-bold transition-all hover:-translate-y-1 group">
-                  Xác nhận đặt hàng
-                  <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">rocket_launch</span>
-                </button>
-              </Link>
+              <button 
+                onClick={handleCreateOrder}
+                disabled={isSubmitting}
+                className={`w-full ${isSubmitting ? 'bg-slate-600' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 hover:-translate-y-1'} shadow-[0_0_20px_rgba(59,130,246,0.3)] rounded-lg py-4 px-6 flex items-center justify-center gap-2 text-white text-lg font-bold transition-all group`}
+              >
+                {isSubmitting ? 'Đang tạo đơn...' : 'Xác nhận đặt hàng'}
+                {!isSubmitting && <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">rocket_launch</span>}
+              </button>
               <p className="text-center text-xs text-slate-500 mt-4 px-4">
                 Bằng việc xác nhận, bạn đồng ý với <a href="#" className="text-blue-400 hover:underline">Điều khoản Dịch vụ</a> của NovaCloud.
               </p>

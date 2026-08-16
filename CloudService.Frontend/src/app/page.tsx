@@ -24,8 +24,8 @@ export default function Landing() {
 
       <div className="relative z-10">
         <Navbar />
-        <Promotion />
         <Hero />
+        <Promotion />
         <Services />
         <Infrastructure />
         <Pricing />

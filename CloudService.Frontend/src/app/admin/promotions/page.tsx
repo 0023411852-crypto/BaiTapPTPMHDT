@@ -1,8 +1,32 @@
-'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function PromotionsManager() {
   const [showModal, setShowModal] = useState(false);
+  const [promotions, setPromotions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPromotions = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:5154/api/Promotions', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!res.ok) throw new Error('API /api/Promotions chưa được implement ở Backend.');
+        const data = await res.json();
+        setPromotions(data.data || []);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPromotions();
+  }, []);
 
   return (
     <div className="max-w-[1280px] mx-auto w-full flex flex-col h-full relative">
@@ -60,76 +84,55 @@ export default function PromotionsManager() {
               </tr>
             </thead>
             <tbody className="text-sm">
+              {isLoading && (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-slate-400">Đang tải dữ liệu...</td>
+                </tr>
+              )}
               
-              <tr className="border-b border-[rgba(99,179,255,0.05)] hover:bg-white/5 transition-colors">
-                <td className="py-4 px-6 font-mono text-blue-400 font-bold">NOVA50OFF</td>
-                <td className="py-4 px-6 text-white">Compute Instance Pro</td>
-                <td className="py-4 px-6 text-cyan-400 font-bold text-[16px]">50%</td>
-                <td className="py-4 px-6 text-slate-400 font-mono">01/10/2024</td>
-                <td className="py-4 px-6 text-slate-400 font-mono">31/10/2024</td>
-                <td className="py-4 px-6">
-                  <div className="relative inline-block w-10 align-middle select-none">
-                    <input type="checkbox" defaultChecked className="peer sr-only" id="toggle1" />
-                    <label htmlFor="toggle1" className="block overflow-hidden h-5 rounded-full bg-[#1a2c47] cursor-pointer peer-checked:bg-blue-600 transition-colors duration-300 before:content-[''] before:absolute before:w-4 before:h-4 before:bg-white before:rounded-full before:top-[2px] before:left-[2px] peer-checked:before:translate-x-5 before:transition-transform before:duration-300"></label>
-                  </div>
-                </td>
-                <td className="py-4 px-6 text-right">
-                  <button className="text-slate-400 hover:text-blue-400 p-1 rounded-md hover:bg-white/5 transition-colors">
-                    <span className="material-symbols-outlined text-[20px]">edit</span>
-                  </button>
-                </td>
-              </tr>
+              {!isLoading && error && (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-red-400">Lỗi: {error}</td>
+                </tr>
+              )}
 
-              <tr className="border-b border-[rgba(99,179,255,0.05)] hover:bg-white/5 transition-colors">
-                <td className="py-4 px-6 font-mono text-blue-400 font-bold">STORAGE25</td>
-                <td className="py-4 px-6 text-white">Object Storage Basic</td>
-                <td className="py-4 px-6 text-cyan-400 font-bold text-[16px]">25%</td>
-                <td className="py-4 px-6 text-slate-400 font-mono">15/09/2024</td>
-                <td className="py-4 px-6 text-slate-400 font-mono">15/11/2024</td>
-                <td className="py-4 px-6">
-                  <div className="relative inline-block w-10 align-middle select-none">
-                    <input type="checkbox" defaultChecked className="peer sr-only" id="toggle2" />
-                    <label htmlFor="toggle2" className="block overflow-hidden h-5 rounded-full bg-[#1a2c47] cursor-pointer peer-checked:bg-blue-600 transition-colors duration-300 before:content-[''] before:absolute before:w-4 before:h-4 before:bg-white before:rounded-full before:top-[2px] before:left-[2px] peer-checked:before:translate-x-5 before:transition-transform before:duration-300"></label>
-                  </div>
-                </td>
-                <td className="py-4 px-6 text-right">
-                  <button className="text-slate-400 hover:text-blue-400 p-1 rounded-md hover:bg-white/5 transition-colors">
-                    <span className="material-symbols-outlined text-[20px]">edit</span>
-                  </button>
-                </td>
-              </tr>
+              {!isLoading && !error && promotions.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-slate-400">Không có dữ liệu khuyến mãi.</td>
+                </tr>
+              )}
 
-              <tr className="hover:bg-white/5 transition-colors opacity-60">
-                <td className="py-4 px-6 font-mono text-blue-400 font-bold">WELCOME10</td>
-                <td className="py-4 px-6 text-white">All Services</td>
-                <td className="py-4 px-6 text-cyan-400 font-bold text-[16px]">10%</td>
-                <td className="py-4 px-6 text-slate-400 font-mono">01/01/2024</td>
-                <td className="py-4 px-6 text-slate-400 font-mono">31/12/2024</td>
-                <td className="py-4 px-6">
-                  <div className="relative inline-block w-10 align-middle select-none">
-                    <input type="checkbox" className="peer sr-only" id="toggle3" />
-                    <label htmlFor="toggle3" className="block overflow-hidden h-5 rounded-full bg-[#1a2c47] cursor-pointer peer-checked:bg-blue-600 transition-colors duration-300 before:content-[''] before:absolute before:w-4 before:h-4 before:bg-white before:rounded-full before:top-[2px] before:left-[2px] peer-checked:before:translate-x-5 before:transition-transform before:duration-300"></label>
-                  </div>
-                </td>
-                <td className="py-4 px-6 text-right">
-                  <button className="text-slate-400 hover:text-blue-400 p-1 rounded-md hover:bg-white/5 transition-colors">
-                    <span className="material-symbols-outlined text-[20px]">edit</span>
-                  </button>
-                </td>
-              </tr>
+              {!isLoading && !error && promotions.map((promo, index) => (
+                <tr key={index} className="border-b border-[rgba(99,179,255,0.05)] hover:bg-white/5 transition-colors">
+                  <td className="py-4 px-6 font-mono text-blue-400 font-bold">{promo.code}</td>
+                  <td className="py-4 px-6 text-white">{promo.servicePlanName || 'All Services'}</td>
+                  <td className="py-4 px-6 text-cyan-400 font-bold text-[16px]">{promo.discountPercentage}%</td>
+                  <td className="py-4 px-6 text-slate-400 font-mono">{new Date(promo.startDate).toLocaleDateString()}</td>
+                  <td className="py-4 px-6 text-slate-400 font-mono">{new Date(promo.endDate).toLocaleDateString()}</td>
+                  <td className="py-4 px-6">
+                    <div className="relative inline-block w-10 align-middle select-none">
+                      <input type="checkbox" checked={promo.isActive} readOnly className="peer sr-only" id={`toggle${index}`} />
+                      <label htmlFor={`toggle${index}`} className="block overflow-hidden h-5 rounded-full bg-[#1a2c47] cursor-pointer peer-checked:bg-blue-600 transition-colors duration-300 before:content-[''] before:absolute before:w-4 before:h-4 before:bg-white before:rounded-full before:top-[2px] before:left-[2px] peer-checked:before:translate-x-5 before:transition-transform before:duration-300"></label>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-right">
+                    <button className="text-slate-400 hover:text-blue-400 p-1 rounded-md hover:bg-white/5 transition-colors">
+                      <span className="material-symbols-outlined text-[20px]">edit</span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
         <div className="p-4 border-t border-[rgba(99,179,255,0.12)] flex items-center justify-between bg-[#0a1628]/30">
-          <span className="text-sm text-slate-400">Hiển thị 1-3 trong 24 kết quả</span>
+          <span className="text-sm text-slate-400">Hiển thị {promotions.length} kết quả</span>
           <div className="flex gap-1">
             <button className="w-8 h-8 rounded-md flex items-center justify-center border border-[rgba(99,179,255,0.12)] text-slate-400 hover:bg-white/5 disabled:opacity-50" disabled><span className="material-symbols-outlined text-sm">chevron_left</span></button>
             <button className="w-8 h-8 rounded-md flex items-center justify-center bg-blue-500/20 border border-blue-500/50 text-blue-400">1</button>
-            <button className="w-8 h-8 rounded-md flex items-center justify-center border border-[rgba(99,179,255,0.12)] text-slate-400 hover:bg-white/5">2</button>
-            <button className="w-8 h-8 rounded-md flex items-center justify-center border border-[rgba(99,179,255,0.12)] text-slate-400 hover:bg-white/5">3</button>
-            <button className="w-8 h-8 rounded-md flex items-center justify-center border border-[rgba(99,179,255,0.12)] text-slate-400 hover:bg-white/5"><span className="material-symbols-outlined text-sm">chevron_right</span></button>
+            <button className="w-8 h-8 rounded-md flex items-center justify-center border border-[rgba(99,179,255,0.12)] text-slate-400 hover:bg-white/5 disabled:opacity-50" disabled><span className="material-symbols-outlined text-sm">chevron_right</span></button>
           </div>
         </div>
       </div>

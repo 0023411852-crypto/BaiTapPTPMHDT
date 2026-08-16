@@ -1,11 +1,18 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function PaymentPage() {
+function PaymentContent() {
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes in seconds
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get('orderId');
+  const amountParam = searchParams.get('amount');
+  const amount = amountParam ? parseFloat(amountParam) : 0;
+  
+  const [isPaid, setIsPaid] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -13,7 +20,12 @@ export default function PaymentPage() {
     if (!token && !demoRole) {
       router.push('/login');
     }
-  }, [router]);
+    
+    // Nếu không có orderId, đẩy về my-orders hoặc trang chủ
+    if (!orderId) {
+      router.push('/my-orders');
+    }
+  }, [router, orderId]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -28,6 +40,13 @@ export default function PaymentPage() {
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
   const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+  const handleMockPayment = () => {
+    setIsPaid(true);
+    setTimeout(() => {
+      router.push('/my-orders');
+    }, 2000);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
@@ -89,11 +108,11 @@ export default function PaymentPage() {
           {/* Order Details */}
           <div className="w-full text-center mb-6">
             <div className="text-slate-400 mb-1">Số tiền thanh toán</div>
-            <div className="text-3xl text-white font-bold mb-3">289.000 VND</div>
+            <div className="text-3xl text-white font-bold mb-3">{amount.toLocaleString()} VND</div>
             
             <div className="inline-flex items-center gap-2 bg-[#0a1628]/80 px-4 py-2 rounded-full border border-[rgba(99,179,255,0.12)]">
               <span className="text-xs text-slate-400">Mã đơn hàng:</span>
-              <span className="text-sm text-blue-400 font-bold tracking-wider font-mono">#NC-9982</span>
+              <span className="text-sm text-blue-400 font-bold tracking-wider font-mono">#{orderId?.substring(0, 8).toUpperCase() || 'NC-9982'}</span>
               <button className="text-slate-500 hover:text-white transition-colors p-1" title="Copy">
                 <span className="material-symbols-outlined text-[16px]">content_copy</span>
               </button>
@@ -109,13 +128,28 @@ export default function PaymentPage() {
               </span>
             </div>
             
-            {timeLeft > 0 && (
+            {timeLeft > 0 && !isPaid && (
               <div className="flex items-center justify-center gap-2 text-blue-400">
                 <span className="material-symbols-outlined animate-spin text-[18px]">sync</span>
                 <span className="text-sm font-medium">Đang chờ thanh toán...</span>
               </div>
             )}
+            
+            {isPaid && (
+              <div className="flex items-center justify-center gap-2 text-green-400 mt-2">
+                <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                <span className="text-sm font-medium">Thanh toán thành công! Đang chuyển hướng...</span>
+              </div>
+            )}
           </div>
+          
+          <button 
+            onClick={handleMockPayment}
+            disabled={isPaid}
+            className="mt-4 px-6 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold text-sm transition-colors w-full"
+          >
+            {isPaid ? 'Đã thanh toán' : 'Giả lập Thanh toán Thành công'}
+          </button>
           
           <p className="text-slate-500 text-xs mt-4 text-center">
             Trang sẽ tự cập nhật khi thanh toán thành công
@@ -142,5 +176,13 @@ export default function PaymentPage() {
         }
       `}} />
     </div>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-white">Đang tải...</div>}>
+      <PaymentContent />
+    </Suspense>
   );
 }
