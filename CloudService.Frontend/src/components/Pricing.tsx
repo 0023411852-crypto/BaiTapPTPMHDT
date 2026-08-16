@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 type Billing = 'monthly' | 'annual'
 
@@ -83,7 +84,7 @@ export default function Pricing() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await fetch('https://localhost:7001/api/ServicePlans?PageNumber=1&PageSize=10');
+        const res = await fetch('http://localhost:5154/api/ServicePlans?PageNumber=1&PageSize=10');
         const data = await res.json();
         if (res.ok && data.data) {
           const mappedPlans = data.data.map((p: any, index: number) => {
@@ -246,8 +247,9 @@ export default function Pricing() {
                 </ul>
               </div>
 
-              <button
-                className="w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200"
+              <Link
+                href={`/checkout?planId=${plan.id || ''}&billing=${billing}`}
+                className="w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200 text-center block"
                 style={
                   plan.highlight
                     ? { background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: 'white', boxShadow: '0 0 20px rgba(99,102,241,0.4)' }
@@ -265,7 +267,7 @@ export default function Pricing() {
                 }}
               >
                 {plan.cta}
-              </button>
+              </Link>
             </div>
           ))}
         </div>

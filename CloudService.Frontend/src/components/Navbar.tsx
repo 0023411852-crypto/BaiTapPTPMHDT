@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 const navLinks = [
   { label: 'Dịch vụ', href: '#services' },
@@ -13,12 +14,61 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [user, setUser] = useState<{ fullName: string; role: string } | null>(null)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const router = useRouter()
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    
+    // Check click outside dropdown
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
   }, [])
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem('token');
+      const demoRole = localStorage.getItem('demo_role');
+      if (token) {
+        try {
+          const res = await fetch('http://localhost:5154/api/Users/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setUser({ fullName: data.fullName, role: data.role || 'Customer' });
+          } else if (demoRole) {
+            setUser({ fullName: `Demo ${demoRole}`, role: demoRole });
+          }
+        } catch (e) {
+          if (demoRole) setUser({ fullName: `Demo ${demoRole}`, role: demoRole });
+        }
+      } else if (demoRole) {
+        setUser({ fullName: `Demo ${demoRole}`, role: demoRole });
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('demo_role');
+    setUser(null);
+    setDropdownOpen(false);
+    router.push('/login');
+  };
 
   return (
     <header
@@ -61,29 +111,83 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* CTA buttons */}
-        <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="/login"
-            className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg border transition-all duration-200"
-            style={{ borderColor: 'rgba(99, 179, 255, 0.25)', background: 'transparent' }}
-            onMouseEnter={e => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(99, 179, 255, 0.6)'
-              ;(e.currentTarget as HTMLElement).style.background = 'rgba(59, 130, 246, 0.08)'
-            }}
-            onMouseLeave={e => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(99, 179, 255, 0.25)'
-              ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-            }}
-          >
-            Đăng nhập
-          </Link>
-          <a
-            href="#"
-            className="btn-glow px-5 py-2 text-sm font-semibold text-white rounded-lg"
-          >
-            Bắt đầu ngay
-          </a>
+        {/* User / CTA buttons */}
+        <div className="hidden md:flex items-center gap-3 relative">
+          {user ? (
+            <div className="relative" ref={dropdownRef}>
+              <button 
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2 pl-3 pr-4 py-1.5 rounded-full border transition-all duration-200 hover:bg-white/5"
+                style={{ borderColor: 'rgba(99, 179, 255, 0.2)' }}
+              >
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-[rgba(99,179,255,0.3)]">
+                  <img src={`https://ui-avatars.com/api/?name=${user.fullName.replace(' ', '+')}&background=0D8ABC&color=fff`} alt="Avatar" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-sm font-bold text-white leading-tight">{user.fullName}</span>
+                  <span className="text-[10px] text-blue-400 font-mono tracking-wider uppercase">{user.role}</span>
+                </div>
+                <svg className={`w-4 h-4 text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              {dropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-56 glass rounded-xl border border-[rgba(99,179,255,0.15)] shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col py-2 z-50">
+                  <div className="px-4 py-2 border-b border-white/5 mb-1">
+                    <p className="text-xs text-slate-400">Đăng nhập dưới dạng</p>
+                    <p className="text-sm font-bold text-white truncate">{user.fullName}</p>
+                  </div>
+                  
+                  {user.role === 'Admin' || user.role === 'Editor' ? (
+                    <Link href="/admin" className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-blue-500/10 flex items-center gap-2 transition-colors">
+                      <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                      Bảng điều khiển Admin
+                    </Link>
+                  ) : null}
+                  
+                  <Link href="/profile" className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 flex items-center gap-2 transition-colors">
+                    <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    Hồ sơ cá nhân
+                  </Link>
+                  <Link href="/my-orders" className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 flex items-center gap-2 transition-colors">
+                    <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                    Đơn hàng của tôi
+                  </Link>
+                  <div className="h-px bg-white/5 my-1 mx-2"></div>
+                  <button onClick={handleLogout} className="px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 flex items-center gap-2 transition-colors text-left w-full">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                    Đăng xuất
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg border transition-all duration-200"
+                style={{ borderColor: 'rgba(99, 179, 255, 0.25)', background: 'transparent' }}
+                onMouseEnter={e => {
+                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(99, 179, 255, 0.6)'
+                  ;(e.currentTarget as HTMLElement).style.background = 'rgba(59, 130, 246, 0.08)'
+                }}
+                onMouseLeave={e => {
+                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(99, 179, 255, 0.25)'
+                  ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                }}
+              >
+                Đăng nhập
+              </Link>
+              <Link
+                href="/register"
+                className="btn-glow px-5 py-2 text-sm font-semibold text-white rounded-lg"
+              >
+                Đăng ký
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile menu toggle */}
@@ -116,10 +220,18 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
-            <div className="pt-3 flex flex-col gap-2">
-              <Link href="/login" className="px-4 py-2.5 text-sm font-medium text-slate-300 text-center rounded-lg border border-white/15">Đăng nhập</Link>
-              <a href="#" className="btn-glow px-4 py-2.5 text-sm font-semibold text-white text-center rounded-lg">Bắt đầu ngay</a>
-            </div>
+              {user ? (
+                <>
+                  <Link href="/profile" className="px-4 py-2 text-sm font-medium text-slate-300 rounded-lg hover:bg-white/5 transition-colors">Hồ sơ cá nhân</Link>
+                  <Link href="/my-orders" className="px-4 py-2 text-sm font-medium text-slate-300 rounded-lg hover:bg-white/5 transition-colors">Đơn hàng của tôi</Link>
+                  <button onClick={handleLogout} className="px-4 py-2 text-sm font-medium text-red-400 text-left rounded-lg hover:bg-red-500/10 transition-colors">Đăng xuất</button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="px-4 py-2.5 text-sm font-medium text-slate-300 text-center rounded-lg border border-white/15">Đăng nhập</Link>
+                  <Link href="/register" className="btn-glow px-4 py-2.5 text-sm font-semibold text-white text-center rounded-lg">Đăng ký</Link>
+                </>
+              )}
           </div>
         </div>
       )}

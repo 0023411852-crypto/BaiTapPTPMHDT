@@ -1,0 +1,71 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  allowedRoles?: string[]; // VD: ['Admin', 'Editor']
+}
+
+export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+  const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      const demoRole = localStorage.getItem('demo_role');
+
+      // 1. Nếu không có token và không có demo_role, chuyển về đăng nhập
+      if (!token && !demoRole) {
+        router.push('/login');
+        return;
+      }
+
+      let userRole = demoRole || 'Customer';
+
+      // 2. Nếu có token, fetch API để lấy role (Nếu cần thiết, có thể bỏ qua nếu decode trực tiếp JWT)
+      if (token) {
+        try {
+          const res = await fetch('http://localhost:5154/api/Users/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            userRole = data.role || 'Customer';
+          }
+        } catch (e) {
+          console.error("Lỗi xác thực:", e);
+        }
+      }
+
+      // 3. Kiểm tra phân quyền
+      if (allowedRoles && allowedRoles.length > 0) {
+        if (!allowedRoles.includes(userRole)) {
+          // Nếu không đủ quyền, đá ra trang chủ hoặc trang 403
+          router.push('/');
+          return;
+        }
+      }
+
+      setIsAuthorized(true);
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [router, allowedRoles]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#050c1a] text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p>Đang kiểm tra phân quyền...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return isAuthorized ? <>{children}</> : null;
+}

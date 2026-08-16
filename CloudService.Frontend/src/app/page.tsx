@@ -1,6 +1,8 @@
 import Navbar from '../components/Navbar'
+import Promotion from '../components/Promotion'
 import Hero from '../components/Hero'
 import Services from '../components/Services'
+import Infrastructure from '../components/Infrastructure'
 import Pricing from '../components/Pricing'
 import Testimonials from '../components/Testimonials'
 import News from '../components/News'
@@ -22,8 +24,10 @@ export default function Landing() {
 
       <div className="relative z-10">
         <Navbar />
+        <Promotion />
         <Hero />
         <Services />
+        <Infrastructure />
         <Pricing />
         <Testimonials />
         <News />
