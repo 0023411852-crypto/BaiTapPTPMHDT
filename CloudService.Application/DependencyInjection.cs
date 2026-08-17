@@ -24,6 +24,8 @@ namespace CloudService.Application
             services.AddScoped<IStatisticsService, StatisticsService>();
             services.AddScoped<IPromotionService, PromotionService>();
             services.AddScoped<IAuditLogService, AuditLogService>();
+            services.AddScoped<IContactService, ContactService>();
+            services.AddScoped<ITestimonialService, TestimonialService>();
             
             // Event Dispatcher & Handlers
             services.AddScoped<IEventDispatcher, EventDispatcher>();

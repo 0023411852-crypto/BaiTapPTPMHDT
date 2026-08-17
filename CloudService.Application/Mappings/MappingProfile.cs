@@ -44,6 +44,12 @@ namespace CloudService.Application.Mappings
             CreateMap<CreateAffiliateApplicationDto, AffiliateApplication>();
             CreateMap<UpdateAffiliateApplicationDto, AffiliateApplication>();
 
+            CreateMap<Contact, CloudService.Application.DTOs.Contacts.ContactDto>();
+            CreateMap<CloudService.Application.DTOs.Contacts.CreateContactDto, Contact>();
+
+            CreateMap<Testimonial, CloudService.Application.DTOs.Testimonials.TestimonialDto>();
+            CreateMap<CloudService.Application.DTOs.Testimonials.CreateTestimonialDto, Testimonial>();
+
             CreateMap<AppUser, UserDto>();
         }
 
