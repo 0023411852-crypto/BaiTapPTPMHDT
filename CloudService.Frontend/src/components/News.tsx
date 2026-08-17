@@ -7,21 +7,23 @@ interface NewsArticleDto {
   id: string;
   title: string;
   content: string;
+  slug: string;
+  category: string;
+  thumbnailUrl: string;
+  excerpt: string;
   authorName: string;
   isPublished: boolean;
   createdAt: string;
 }
 
-// Hàm hỗ trợ tạo ảnh/màu ngẫu nhiên do API chưa có
-const getFallbackData = (index: number) => {
-  const fallbacks = [
-    { category: 'Cập nhật sản phẩm', categoryColor: '#3b82f6', image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=340&fit=crop&auto=format' },
-    { category: 'Hạ tầng', categoryColor: '#22d3ee', image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=340&fit=crop&auto=format' },
-    { category: 'Bảo mật', categoryColor: '#10b981', image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=340&fit=crop&auto=format' },
-    { category: 'Hướng dẫn', categoryColor: '#f59e0b', image: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=600&h=340&fit=crop&auto=format' },
-    { category: 'Khuyến mãi', categoryColor: '#ef4444', image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=340&fit=crop&auto=format' },
-  ];
-  return fallbacks[index % fallbacks.length];
+const getCategoryColor = (category: string) => {
+  const cat = (category || '').toLowerCase();
+  if (cat.includes('sản phẩm') || cat.includes('product')) return '#3b82f6';
+  if (cat.includes('hạ tầng') || cat.includes('infra')) return '#22d3ee';
+  if (cat.includes('bảo mật') || cat.includes('security')) return '#10b981';
+  if (cat.includes('hướng dẫn') || cat.includes('guide')) return '#f59e0b';
+  if (cat.includes('khuyến mãi') || cat.includes('promo')) return '#ef4444';
+  return '#8b5cf6'; // Default color (purple)
 };
 
 export default function News() {
@@ -81,11 +83,19 @@ export default function News() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {articles.map((article, index) => {
-              const fallback = getFallbackData(index);
+            {articles.map((article) => {
+              const categoryColor = getCategoryColor(article.category);
               const dateObj = new Date(article.createdAt);
               const dateStr = `${dateObj.getDate()} Tháng ${dateObj.getMonth() + 1}, ${dateObj.getFullYear()}`;
               
+              // Generate excerpt safely
+              const stripHtml = (html: string) => {
+                const tmp = document.createElement("DIV");
+                tmp.innerHTML = html;
+                return tmp.textContent || tmp.innerText || "";
+              };
+              const displayExcerpt = article.excerpt || (article.content ? stripHtml(article.content).substring(0, 100) + '...' : '');
+
               return (
                 <Link
                   key={article.id}
@@ -97,8 +107,8 @@ export default function News() {
                     border: '1px solid rgba(99,179,255,0.12)',
                   }}
                   onMouseEnter={e => {
-                    ;(e.currentTarget as HTMLElement).style.borderColor = `${fallback.categoryColor}40`
-                    ;(e.currentTarget as HTMLElement).style.boxShadow = `0 0 30px ${fallback.categoryColor}15`
+                    ;(e.currentTarget as HTMLElement).style.borderColor = `${categoryColor}40`
+                    ;(e.currentTarget as HTMLElement).style.boxShadow = `0 0 30px ${categoryColor}15`
                     ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'
                   }}
                   onMouseLeave={e => {
@@ -108,13 +118,17 @@ export default function News() {
                   }}
                 >
                   <div className="relative h-48 bg-slate-800 overflow-hidden">
-                    <img src={fallback.image} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img 
+                      src={article.thumbnailUrl || 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=340&fit=crop&auto=format'} 
+                      alt={article.title} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                    />
                     <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(5,12,26,0.8) 0%, transparent 50%)' }} />
                     <span
                       className="absolute top-4 left-4 px-2.5 py-1 rounded-lg text-xs font-semibold"
-                      style={{ background: `${fallback.categoryColor}20`, color: fallback.categoryColor, border: `1px solid ${fallback.categoryColor}40` }}
+                      style={{ background: `${categoryColor}20`, color: categoryColor, border: `1px solid ${categoryColor}40` }}
                     >
-                      {fallback.category}
+                      {article.category || 'Tin tức'}
                     </span>
                   </div>
                   <div className="p-6 flex flex-col flex-1">
@@ -122,6 +136,11 @@ export default function News() {
                     <h3 className="text-lg font-bold text-primary-container mb-3 leading-snug group-hover:text-blue-600 transition-colors line-clamp-2" title={article.title}>
                       {article.title}
                     </h3>
+                    {displayExcerpt && (
+                      <p className="text-on-surface-variant text-sm mb-4 line-clamp-3">
+                        {displayExcerpt}
+                      </p>
+                    )}
                     <div className="mt-auto pt-4 flex items-center gap-1.5 text-blue-600 text-sm font-medium">
                       Đọc thêm
                       <svg className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 14 14">
@@ -138,3 +157,4 @@ export default function News() {
     </section>
   )
 }
+

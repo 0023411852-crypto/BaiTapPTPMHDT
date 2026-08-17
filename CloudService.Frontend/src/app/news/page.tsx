@@ -8,21 +8,23 @@ interface NewsArticleDto {
   id: string;
   title: string;
   content: string;
+  slug: string;
+  category: string;
+  thumbnailUrl: string;
+  excerpt: string;
   authorName: string;
   isPublished: boolean;
   createdAt: string;
 }
 
-const getFallbackData = (index: number) => {
-  const fallbacks = [
-    { category: 'Cập nhật sản phẩm', categoryColor: '#3b82f6', image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=340&fit=crop&auto=format', excerpt: 'Giải pháp mới giúp doanh nghiệp tối ưu hóa nguồn lực.' },
-    { category: 'Hạ tầng', categoryColor: '#22d3ee', image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=340&fit=crop&auto=format', excerpt: 'Mở rộng hạ tầng mạng toàn cầu, giảm độ trễ và tăng tốc kết nối.' },
-    { category: 'Bảo mật', categoryColor: '#10b981', image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=340&fit=crop&auto=format', excerpt: 'Bảo vệ dữ liệu khách hàng với tiêu chuẩn quốc tế.' },
-    { category: 'Hướng dẫn', categoryColor: '#f59e0b', image: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=600&h=340&fit=crop&auto=format', excerpt: 'Từng bước triển khai dự án nhanh chóng trên nền tảng của chúng tôi.' },
-    { category: 'Khuyến mãi', categoryColor: '#ef4444', image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=340&fit=crop&auto=format', excerpt: 'Chương trình tri ân khách hàng đặc biệt trong tháng.' },
-    { category: 'Cập nhật sản phẩm', categoryColor: '#3b82f6', image: 'https://images.unsplash.com/photo-1614064641913-6b71a2eaae37?w=600&h=340&fit=crop&auto=format', excerpt: 'Tính năng mới vừa được bổ sung vào hệ sinh thái của NovaCloud.' }
-  ];
-  return fallbacks[index % fallbacks.length];
+const getCategoryColor = (category: string) => {
+  const cat = (category || '').toLowerCase();
+  if (cat.includes('sản phẩm') || cat.includes('product')) return '#3b82f6';
+  if (cat.includes('hạ tầng') || cat.includes('infra')) return '#22d3ee';
+  if (cat.includes('bảo mật') || cat.includes('security')) return '#10b981';
+  if (cat.includes('hướng dẫn') || cat.includes('guide')) return '#f59e0b';
+  if (cat.includes('khuyến mãi') || cat.includes('promo')) return '#ef4444';
+  return '#8b5cf6'; // Default color (purple)
 };
 
 export default function NewsPage() {
@@ -30,6 +32,7 @@ export default function NewsPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [filterCategory, setFilterCategory] = useState('');
   const pageSize = 6;
 
   useEffect(() => {
@@ -39,7 +42,12 @@ export default function NewsPage() {
         const res = await fetch(`http://localhost:5154/api/NewsArticles?PageNumber=${page}&PageSize=${pageSize}&onlyPublished=true`);
         if (res.ok) {
           const data = await res.json();
-          setArticles(data.items || []);
+          // Lọc dữ liệu client-side nếu API không hỗ trợ query string Category
+          let fetchedItems = data.items || [];
+          if (filterCategory) {
+            fetchedItems = fetchedItems.filter((a: NewsArticleDto) => (a.category || '').toLowerCase().includes(filterCategory.toLowerCase()));
+          }
+          setArticles(fetchedItems);
           setTotalPages(data.totalPages || 1);
         }
       } catch (error) {
@@ -50,7 +58,7 @@ export default function NewsPage() {
     };
     
     fetchArticles();
-  }, [page]);
+  }, [page, filterCategory]);
 
   return (
     <>
@@ -59,7 +67,7 @@ export default function NewsPage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary-container">Tin tức & Blog</h1>
-            <p className="text-xl text-slate-600">Cập nhật những thông tin mới nhất từ NimbusCloud</p>
+            <p className="text-xl text-slate-600">Cập nhật những thông tin mới nhất từ NovaCloud</p>
           </div>
 
       {/* Search & Filter Bar */}
@@ -74,13 +82,17 @@ export default function NewsPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-        <select className="bg-white border border-gray-300 rounded-xl py-3 px-4 text-gray-900 focus:outline-none focus:border-blue-500 shadow-sm">
+        <select 
+          className="bg-white border border-gray-300 rounded-xl py-3 px-4 text-gray-900 focus:outline-none focus:border-blue-500 shadow-sm"
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+        >
           <option value="">Tất cả danh mục</option>
-          <option value="product">Cập nhật sản phẩm</option>
-          <option value="infra">Hạ tầng</option>
-          <option value="security">Bảo mật</option>
-          <option value="guide">Hướng dẫn</option>
-          <option value="promo">Khuyến mãi</option>
+          <option value="sản phẩm">Cập nhật sản phẩm</option>
+          <option value="hạ tầng">Hạ tầng</option>
+          <option value="bảo mật">Bảo mật</option>
+          <option value="hướng dẫn">Hướng dẫn</option>
+          <option value="khuyến mãi">Khuyến mãi</option>
         </select>
       </div>
 
@@ -91,22 +103,22 @@ export default function NewsPage() {
         </div>
       ) : articles.length === 0 ? (
         <div className="text-center py-20 bg-surface-container rounded-2xl max-w-7xl mx-auto">
-          <p className="text-on-surface-variant text-lg">Chưa có bài viết nào được xuất bản.</p>
+          <p className="text-on-surface-variant text-lg">Chưa có bài viết nào phù hợp.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {articles.map((article, index) => {
-            const fallback = getFallbackData(index);
+          {articles.map((article) => {
+            const categoryColor = getCategoryColor(article.category);
             const dateObj = new Date(article.createdAt);
             const dateStr = `${dateObj.getDate()} Tháng ${dateObj.getMonth() + 1}, ${dateObj.getFullYear()}`;
             
-            // Generate excerpt if not provided by backend
+            // Generate excerpt safely
             const stripHtml = (html: string) => {
               const tmp = document.createElement("DIV");
               tmp.innerHTML = html;
               return tmp.textContent || tmp.innerText || "";
             };
-            const excerpt = article.content ? stripHtml(article.content).substring(0, 100) + '...' : fallback.excerpt;
+            const displayExcerpt = article.excerpt || (article.content ? stripHtml(article.content).substring(0, 100) + '...' : '');
             
             return (
               <Link
@@ -115,13 +127,17 @@ export default function NewsPage() {
                 className="rounded-2xl overflow-hidden group transition-all duration-300 flex flex-col bg-white border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-1"
               >
                 <div className="relative h-48 bg-slate-100 overflow-hidden">
-                  <img src={fallback.image} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img 
+                    src={article.thumbnailUrl || 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=340&fit=crop&auto=format'} 
+                    alt={article.title} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <span
                     className="absolute top-4 left-4 px-2.5 py-1 rounded-lg text-xs font-semibold backdrop-blur-md"
-                    style={{ background: 'rgba(255,255,255,0.9)', color: fallback.categoryColor }}
+                    style={{ background: 'rgba(255,255,255,0.9)', color: categoryColor }}
                   >
-                    {fallback.category}
+                    {article.category || 'Tin tức'}
                   </span>
                 </div>
                 <div className="p-6 flex flex-col flex-1">
@@ -130,7 +146,7 @@ export default function NewsPage() {
                     {article.title}
                   </h3>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {excerpt}
+                    {displayExcerpt}
                   </p>
                   <div className="mt-auto pt-4 flex items-center gap-1.5 text-blue-600 text-sm font-medium border-t border-gray-100">
                     Đọc bài viết
