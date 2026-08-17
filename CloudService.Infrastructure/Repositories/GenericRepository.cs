@@ -25,6 +25,11 @@ namespace CloudService.Infrastructure.Repositories
             return await _dbSet.ToListAsync();
         }
 
+        public IQueryable<T> GetQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
+
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);

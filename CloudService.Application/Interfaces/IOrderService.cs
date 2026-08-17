@@ -9,5 +9,6 @@ namespace CloudService.Application.Interfaces
         Task<PagedResponse<OrderDto>> GetAllOrdersAsync(PaginationFilter filter);
         Task<OrderDto> CreateOrderAsync(Guid userId, CreateOrderDto dto);
         Task<bool> UpdateOrderStatusAsync(Guid orderId, string status);
+        Task<byte[]> ExportOrdersToExcelAsync();
     }
 }

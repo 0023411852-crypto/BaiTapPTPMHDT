@@ -5,6 +5,8 @@ using CloudService.Application.DTOs.Orders;
 using CloudService.Application.DTOs.ServiceCategories;
 using CloudService.Application.DTOs.ServicePlans;
 using CloudService.Application.DTOs.Users;
+using CloudService.Application.DTOs.Promotions;
+using CloudService.Application.DTOs.AuditLogs;
 using CloudService.Domain.Entities;
 
 namespace CloudService.Application.Mappings
@@ -22,9 +24,17 @@ namespace CloudService.Application.Mappings
             CreateMap<ServicePlan, ServicePlanDto>();
             CreateMap<CreateServicePlanDto, ServicePlan>();
             CreateMap<UpdateServicePlanDto, ServicePlan>();
+            CreateMap<PlanPrice, PlanPriceDto>();
 
             CreateMap<OrderRequest, OrderDto>();
             CreateMap<CreateOrderDto, OrderRequest>();
+
+            CreateMap<Promotion, PromotionDto>();
+            CreateMap<CreatePromotionDto, Promotion>();
+            CreateMap<UpdatePromotionDto, Promotion>();
+
+            CreateMap<AuditLog, AuditLogDto>()
+                .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : "System"));
 
             CreateMap<NewsArticle, NewsArticleDto>();
             CreateMap<CreateNewsArticleDto, NewsArticle>();

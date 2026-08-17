@@ -4,6 +4,7 @@ namespace CloudService.Domain.Interfaces
     {
         Task<T?> GetByIdAsync(Guid id);
         Task<IEnumerable<T>> GetAllAsync();
+        IQueryable<T> GetQueryable();
         Task AddAsync(T entity);
         void Update(T entity);
         void Delete(T entity);

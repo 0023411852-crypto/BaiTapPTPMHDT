@@ -1,5 +1,6 @@
 using CloudService.Application;
 using CloudService.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -78,9 +79,25 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Đăng ký các dịch vụ
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<CloudService.Application.Interfaces.ICurrentUserService, CloudService.WebApi.Services.CurrentUserService>();
+
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<CloudService.Infrastructure.Data.ApplicationDbContext>();
+    try 
+    {
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Could not apply migrations: " + ex.Message);
+    }
+}
 
 app.UseMiddleware<CloudService.WebApi.Middlewares.ExceptionMiddleware>();
 

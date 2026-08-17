@@ -75,5 +75,21 @@ namespace CloudService.WebApi.Controllers
             var base64Qr = _qrCodeService.GenerateQRCodeBase64(paymentString);
             return Ok(new { qrCode = base64Qr, paymentString });
         }
+
+        [HttpGet("export")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ExportOrders()
+        {
+            try
+            {
+                var fileBytes = await _orderService.ExportOrdersToExcelAsync();
+                var fileName = $"Orders_Export_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi xuất file Excel.", error = ex.Message });
+            }
+        }
     }
 }

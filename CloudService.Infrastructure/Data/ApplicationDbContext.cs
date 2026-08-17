@@ -20,6 +20,8 @@ namespace CloudService.Infrastructure.Data
         public DbSet<AffiliateApplication> AffiliateApplications { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<UserSession> UserSessions { get; set; }
+        public DbSet<Testimonial> Testimonials { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
