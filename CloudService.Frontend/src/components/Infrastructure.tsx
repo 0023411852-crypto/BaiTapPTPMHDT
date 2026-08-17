@@ -17,31 +17,31 @@ export default function Infrastructure() {
               HẠ TẦNG & CÔNG NGHỆ
             </div>
             
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+            <h2 className="text-4xl md:text-5xl font-bold text-primary-container mb-6 leading-tight">
               Sức mạnh đằng sau <br/>
               <span className="gradient-text">NovaCloud</span>
             </h2>
             
-            <p className="text-slate-400 text-lg mb-8 leading-relaxed">
+            <p className="text-on-surface-variant text-lg mb-8 leading-relaxed">
               Chúng tôi sở hữu Data Center đạt chuẩn Tier III quốc tế, chứng chỉ ISO 27001 về bảo mật và hạ tầng mạng Backbone 100Gbps, đảm bảo dịch vụ của bạn luôn hoạt động trơn tru với hiệu suất tối đa.
             </p>
             
             <div className="grid grid-cols-2 gap-6 mb-10">
               <div className="glass-panel p-5 rounded-2xl border border-[rgba(99,179,255,0.1)]">
-                <div className="text-3xl font-bold text-white mb-1">99.9%</div>
-                <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Uptime SLA</div>
+                <div className="text-3xl font-bold text-primary-container mb-1">99.9%</div>
+                <div className="text-sm text-on-surface-variant font-medium uppercase tracking-wider">Uptime SLA</div>
               </div>
               <div className="glass-panel p-5 rounded-2xl border border-[rgba(99,179,255,0.1)]">
-                <div className="text-3xl font-bold text-white mb-1">100<span className="text-xl">Gbps</span></div>
-                <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Băng thông mạng</div>
+                <div className="text-3xl font-bold text-primary-container mb-1">100<span className="text-xl">Gbps</span></div>
+                <div className="text-sm text-on-surface-variant font-medium uppercase tracking-wider">Băng thông mạng</div>
               </div>
               <div className="glass-panel p-5 rounded-2xl border border-[rgba(99,179,255,0.1)]">
-                <div className="text-3xl font-bold text-white mb-1">&lt;1<span className="text-xl">ms</span></div>
-                <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Độ trễ nội bộ</div>
+                <div className="text-3xl font-bold text-primary-container mb-1">&lt;1<span className="text-xl">ms</span></div>
+                <div className="text-sm text-on-surface-variant font-medium uppercase tracking-wider">Độ trễ nội bộ</div>
               </div>
               <div className="glass-panel p-5 rounded-2xl border border-[rgba(99,179,255,0.1)]">
-                <div className="text-3xl font-bold text-white mb-1">NVMe</div>
-                <div className="text-sm text-slate-400 font-medium uppercase tracking-wider">Lưu trữ Enterprise</div>
+                <div className="text-3xl font-bold text-primary-container mb-1">NVMe</div>
+                <div className="text-sm text-on-surface-variant font-medium uppercase tracking-wider">Lưu trữ Enterprise</div>
               </div>
             </div>
             
@@ -82,8 +82,8 @@ export default function Infrastructure() {
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-white">ISO 27001</div>
-                  <div className="text-xs text-slate-400">Certified</div>
+                  <div className="text-sm font-bold text-primary-container">ISO 27001</div>
+                  <div className="text-xs text-on-surface-variant">Certified</div>
                 </div>
               </div>
             </div>
@@ -94,8 +94,8 @@ export default function Infrastructure() {
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-white">Anti-DDoS</div>
-                  <div className="text-xs text-slate-400">Layer 3, 4 & 7</div>
+                  <div className="text-sm font-bold text-primary-container">Anti-DDoS</div>
+                  <div className="text-xs text-on-surface-variant">Layer 3, 4 & 7</div>
                 </div>
               </div>
             </div>

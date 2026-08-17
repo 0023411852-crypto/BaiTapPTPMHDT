@@ -5,10 +5,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 const navLinks = [
-  { label: 'Dịch vụ', href: '#services' },
-  { label: 'Bảng giá', href: '#pricing' },
-  { label: 'Tin tức', href: '#news' },
-  { label: 'Đối tác tiếp thị', href: '#affiliate' },
+  { label: 'Trang chủ', href: '/' },
+  { label: 'Dịch vụ', href: '/services' },
+  { label: 'Bảng giá', href: '/pricing' },
+  { label: 'Tin tức', href: '/news' },
+  { label: 'Đối tác', href: '/affiliate' },
+  { label: 'Liên hệ', href: '/contact' },
 ]
 
 export default function Navbar() {
@@ -22,7 +24,7 @@ export default function Navbar() {
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
-    
+
     // Check click outside dropdown
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -30,7 +32,7 @@ export default function Navbar() {
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll)
       document.removeEventListener('mousedown', handleClickOutside)
@@ -51,15 +53,29 @@ export default function Navbar() {
             setUser({ fullName: data.fullName, role: data.role || 'Customer' });
           } else if (demoRole) {
             setUser({ fullName: `Demo ${demoRole}`, role: demoRole });
+          } else {
+            setUser(null);
           }
         } catch (e) {
           if (demoRole) setUser({ fullName: `Demo ${demoRole}`, role: demoRole });
+          else setUser(null);
         }
       } else if (demoRole) {
         setUser({ fullName: `Demo ${demoRole}`, role: demoRole });
+      } else {
+        setUser(null);
       }
     };
     fetchUser();
+
+    // Lắng nghe sự kiện BFCache (Khi bấm nút Back trên trình duyệt)
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        fetchUser(); // Cập nhật lại Navbar ngay lập tức
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
   }, []);
 
   const handleLogout = () => {
@@ -67,17 +83,17 @@ export default function Navbar() {
     localStorage.removeItem('demo_role');
     setUser(null);
     setDropdownOpen(false);
-    router.push('/login');
+    window.location.href = '/';
   };
 
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
       style={{
-        background: scrolled ? 'rgba(5, 12, 26, 0.85)' : 'transparent',
+        background: scrolled ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
         backdropFilter: scrolled ? 'blur(20px)' : 'none',
         WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(99, 179, 255, 0.1)' : '1px solid transparent',
+        borderBottom: scrolled ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid transparent',
       }}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -88,13 +104,13 @@ export default function Navbar() {
             <div className="relative w-8 h-8 rounded-lg flex items-center justify-center"
               style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}>
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M9 2L15.5 6V12L9 16L2.5 12V6L9 2Z" stroke="white" strokeWidth="1.5" strokeLinejoin="round"/>
-                <path d="M9 2V16M2.5 6L15.5 12M15.5 6L2.5 12" stroke="white" strokeWidth="1" strokeOpacity="0.5"/>
+                <path d="M9 2L15.5 6V12L9 16L2.5 12V6L9 2Z" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+                <path d="M9 2V16M2.5 6L15.5 12M15.5 6L2.5 12" stroke="white" strokeWidth="1" strokeOpacity="0.5" />
               </svg>
             </div>
           </div>
-          <span className="text-lg font-bold tracking-tight text-white">
-            Nova<span className="gradient-text">Cloud</span>
+          <span className="text-lg font-bold tracking-tight text-primary-container">
+            Nimbus<span className="text-secondary-container">Cloud</span>
           </span>
         </a>
 
@@ -104,7 +120,7 @@ export default function Navbar() {
             <a
               key={link.label}
               href={link.href}
-              className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg transition-all duration-200 hover:bg-white/5"
+              className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-primary-container rounded-lg transition-all duration-200 hover:bg-black/5"
             >
               {link.label}
             </a>
@@ -115,7 +131,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3 relative">
           {user ? (
             <div className="relative" ref={dropdownRef}>
-              <button 
+              <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex items-center gap-2 pl-3 pr-4 py-1.5 rounded-full border transition-all duration-200 hover:bg-white/5"
                 style={{ borderColor: 'rgba(99, 179, 255, 0.2)' }}
@@ -124,8 +140,8 @@ export default function Navbar() {
                   <img src={`https://ui-avatars.com/api/?name=${user.fullName.replace(' ', '+')}&background=0D8ABC&color=fff`} alt="Avatar" className="w-full h-full object-cover" />
                 </div>
                 <div className="flex flex-col items-start">
-                  <span className="text-sm font-bold text-white leading-tight">{user.fullName}</span>
-                  <span className="text-[10px] text-blue-400 font-mono tracking-wider uppercase">{user.role}</span>
+                  <span className="text-sm font-bold text-primary-container leading-tight">{user.fullName}</span>
+                  <span className="text-[10px] text-secondary-container font-mono tracking-wider uppercase">{user.role}</span>
                 </div>
                 <svg className={`w-4 h-4 text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -139,21 +155,21 @@ export default function Navbar() {
                     <p className="text-xs text-slate-400">Đăng nhập dưới dạng</p>
                     <p className="text-sm font-bold text-white truncate">{user.fullName}</p>
                   </div>
-                  
+
                   {user.role === 'Admin' || user.role === 'Editor' ? (
                     <Link href="/admin" className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-blue-500/10 flex items-center gap-2 transition-colors">
                       <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                       Bảng điều khiển Admin
                     </Link>
                   ) : null}
-                  
+
                   <Link href="/profile" className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 flex items-center gap-2 transition-colors">
                     <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                     Hồ sơ cá nhân
                   </Link>
                   <Link href="/my-orders" className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 flex items-center gap-2 transition-colors">
                     <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                    Đơn hàng của tôi
+                    Đơn hàng
                   </Link>
                   <div className="h-px bg-white/5 my-1 mx-2"></div>
                   <button onClick={handleLogout} className="px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 flex items-center gap-2 transition-colors text-left w-full">
@@ -170,12 +186,12 @@ export default function Navbar() {
                 className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg border transition-all duration-200"
                 style={{ borderColor: 'rgba(99, 179, 255, 0.25)', background: 'transparent' }}
                 onMouseEnter={e => {
-                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(99, 179, 255, 0.6)'
-                  ;(e.currentTarget as HTMLElement).style.background = 'rgba(59, 130, 246, 0.08)'
+                  ; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99, 179, 255, 0.6)'
+                    ; (e.currentTarget as HTMLElement).style.background = 'rgba(59, 130, 246, 0.08)'
                 }}
                 onMouseLeave={e => {
-                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(99, 179, 255, 0.25)'
-                  ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                  ; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99, 179, 255, 0.25)'
+                    ; (e.currentTarget as HTMLElement).style.background = 'transparent'
                 }}
               >
                 Đăng nhập
@@ -198,9 +214,9 @@ export default function Navbar() {
         >
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
             {mobileOpen ? (
-              <path d="M4 4L18 18M4 18L18 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M4 4L18 18M4 18L18 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             ) : (
-              <path d="M3 6H19M3 11H19M3 16H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M3 6H19M3 11H19M3 16H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             )}
           </svg>
         </button>
@@ -220,18 +236,18 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
-              {user ? (
-                <>
-                  <Link href="/profile" className="px-4 py-2 text-sm font-medium text-slate-300 rounded-lg hover:bg-white/5 transition-colors">Hồ sơ cá nhân</Link>
-                  <Link href="/my-orders" className="px-4 py-2 text-sm font-medium text-slate-300 rounded-lg hover:bg-white/5 transition-colors">Đơn hàng của tôi</Link>
-                  <button onClick={handleLogout} className="px-4 py-2 text-sm font-medium text-red-400 text-left rounded-lg hover:bg-red-500/10 transition-colors">Đăng xuất</button>
-                </>
-              ) : (
-                <>
-                  <Link href="/login" className="px-4 py-2.5 text-sm font-medium text-slate-300 text-center rounded-lg border border-white/15">Đăng nhập</Link>
-                  <Link href="/register" className="btn-glow px-4 py-2.5 text-sm font-semibold text-white text-center rounded-lg">Đăng ký</Link>
-                </>
-              )}
+            {user ? (
+              <>
+                <Link href="/profile" className="px-4 py-2 text-sm font-medium text-slate-300 rounded-lg hover:bg-white/5 transition-colors">Hồ sơ</Link>
+                <Link href="/my-orders" className="px-4 py-2 text-sm font-medium text-slate-300 rounded-lg hover:bg-white/5 transition-colors">Đơn hàng</Link>
+                <button onClick={handleLogout} className="px-4 py-2 text-sm font-medium text-red-400 text-left rounded-lg hover:bg-red-500/10 transition-colors">Đăng xuất</button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="px-4 py-2.5 text-sm font-medium text-slate-300 text-center rounded-lg border border-white/15">Đăng nhập</Link>
+                <Link href="/register" className="btn-glow px-4 py-2.5 text-sm font-semibold text-white text-center rounded-lg">Đăng ký</Link>
+              </>
+            )}
           </div>
         </div>
       )}

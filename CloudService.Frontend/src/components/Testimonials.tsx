@@ -90,7 +90,7 @@ export default function Testimonials() {
           <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full text-xs font-mono text-cyan-400 border border-cyan-400/20 bg-cyan-400/5">
             ĐÁNH GIÁ TỪ KHÁCH HÀNG
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-primary-container mb-4">
             Được tin dùng bởi các đội ngũ<br />
             <span className="gradient-text">không chấp nhận gián đoạn</span>
           </h2>
@@ -100,7 +100,7 @@ export default function Testimonials() {
         <div
           className="relative rounded-3xl p-8 md:p-12 mb-8 transition-all duration-500"
           style={{
-            background: 'rgba(10,22,40,0.7)',
+            background: 'var(--surface-container-low)',
             backdropFilter: 'blur(20px)',
             border: `1px solid ${active.avatarColor}30`,
             boxShadow: `0 0 60px ${active.avatarColor}10, 0 20px 60px rgba(0,0,0,0.4)`,
@@ -113,7 +113,7 @@ export default function Testimonials() {
             </svg>
           </div>
 
-          <p className="text-xl md:text-2xl text-slate-200 leading-relaxed font-light mb-8">
+          <p className="text-xl md:text-2xl text-on-surface leading-relaxed font-light mb-8">
             "{active.quote}"
           </p>
 
@@ -127,8 +127,8 @@ export default function Testimonials() {
                 {active.avatar}
               </div>
               <div>
-                <div className="font-semibold text-white">{active.name}</div>
-                <div className="text-sm text-slate-500">{active.role} · {active.company}</div>
+                <div className="font-semibold text-primary-container">{active.name}</div>
+                <div className="text-sm text-on-surface-variant">{active.role} · {active.company}</div>
               </div>
             </div>
 
@@ -176,7 +176,7 @@ export default function Testimonials() {
               onClick={() => goTo(i)}
               className="rounded-xl p-3 text-left transition-all duration-200"
               style={{
-                background: i === activeIndex ? `${t.avatarColor}10` : 'rgba(10,22,40,0.4)',
+                background: i === activeIndex ? `${t.avatarColor}20` : 'var(--surface-container-low)',
                 border: `1px solid ${i === activeIndex ? t.avatarColor + '40' : 'rgba(99,179,255,0.08)'}`,
               }}
             >
@@ -185,9 +185,9 @@ export default function Testimonials() {
                   style={{ background: `${t.avatarColor}30` }}>
                   {t.avatar[0]}
                 </div>
-                <span className="text-xs font-medium text-slate-300 truncate">{t.name}</span>
+                <span className="text-xs font-medium text-primary-container truncate">{t.name}</span>
               </div>
-              <div className="text-xs text-slate-600 truncate">{t.company}</div>
+              <div className="text-xs text-on-surface-variant truncate">{t.company}</div>
             </button>
           ))}
         </div>

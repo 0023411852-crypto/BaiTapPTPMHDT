@@ -5,76 +5,8 @@ import Link from 'next/link'
 
 type Billing = 'monthly' | 'annual'
 
-const plans = [
-  {
-    name: 'Starter',
-    tag: null,
-    monthlyPrice: 29,
-    annualPrice: 23,
-    desc: 'Dành cho nhà phát triển độc lập và các dự án nhỏ mới bắt đầu.',
-    setupFee: 0,
-    color: '#64748b',
-    specs: [
-      '2 vCPU',
-      '4 GB RAM',
-      '80 GB NVMe Storage',
-      '3 TB Bandwidth',
-    ],
-    features: [
-      '1 IPv4 + /64 IPv6',
-      'Community support',
-      '99.9% uptime SLA',
-    ],
-    cta: 'Bắt đầu ngay',
-    highlight: false,
-  },
-  {
-    name: 'Pro',
-    tag: 'Phổ biến nhất',
-    monthlyPrice: 89,
-    annualPrice: 71,
-    setupFee: 10,
-    desc: 'Dành cho các startup đang phát triển và đội ngũ kỹ thuật cần mở rộng quy mô.',
-    color: '#3b82f6',
-    specs: [
-      '8 vCPU',
-      '16 GB RAM',
-      '320 GB NVMe Storage',
-      '10 TB Bandwidth',
-    ],
-    features: [
-      '2 IPv4 + /48 IPv6',
-      'Priority support (4h)',
-      '99.95% uptime SLA',
-      'Daily snapshots',
-    ],
-    cta: 'Mua Ngay',
-    highlight: true,
-  },
-  {
-    name: 'Enterprise',
-    tag: null,
-    monthlyPrice: 299,
-    annualPrice: 239,
-    setupFee: 50,
-    desc: 'Dành cho các nền tảng quy mô lớn cần tài nguyên chuyên dụng và SLA.',
-    color: '#6366f1',
-    specs: [
-      '32 vCPU',
-      '64 GB RAM',
-      '2 TB NVMe RAID Storage',
-      'Unmetered Bandwidth',
-    ],
-    features: [
-      '5 IPv4 + /32 IPv6',
-      'Dedicated SRE (1h SLA)',
-      '99.99% uptime SLA',
-      'Custom private network',
-    ],
-    cta: 'Liên hệ kinh doanh',
-    highlight: false,
-  },
-]
+// Mock data removed due to backend integration requirements
+// Mảng plans tĩnh đã bị xóa để ép Frontend lấy dữ liệu thực tế từ API.
 
 export default function Pricing() {
   const [billing, setBilling] = useState<Billing>('monthly')
@@ -84,17 +16,33 @@ export default function Pricing() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await fetch('http://localhost:5154/api/ServicePlans?PageNumber=1&PageSize=10');
+        const res = await fetch('http://localhost:5154/api/ServicePlans?PageNumber=1&PageSize=10', {
+          signal: AbortSignal.timeout(5000)
+        });
         const data = await res.json();
         if (res.ok && data.data) {
           const mappedPlans = data.data.map((p: any, index: number) => {
-            const mock = plans[index % plans.length];
+            const monthlyPriceObj = p.prices?.find((pr: any) => pr.billingCycle === 1);
+            const annualPriceObj = p.prices?.find((pr: any) => pr.billingCycle === 12);
+
             return {
-              ...mock,
               name: p.name,
-              desc: p.description || mock.desc,
-              specs: p.specifications ? p.specifications.split(',').map((s: string) => s.trim()) : mock.specs,
+              desc: p.description || 'Gói dịch vụ mặc định',
+              specs: p.specifications ? p.specifications.split(',').map((s: string) => s.trim()) : ['Thông số mặc định'],
+              features: ['Tiện ích 1', 'Tiện ích 2'],
               id: p.id,
+              
+              monthlyPriceId: monthlyPriceObj?.id || null,
+              annualPriceId: annualPriceObj?.id || null,
+              
+              monthlyPrice: monthlyPriceObj?.price || 0,
+              annualPrice: annualPriceObj?.price || 0,
+              setupFee: monthlyPriceObj?.setupFee || annualPriceObj?.setupFee || 0,
+              
+              highlight: index === 1,
+              tag: index === 1 ? 'Phổ biến' : null,
+              color: index === 1 ? '#3b82f6' : '#64748b',
+              cta: 'Mua Ngay'
             };
           });
           setApiPlans(mappedPlans);
@@ -106,7 +54,7 @@ export default function Pricing() {
     fetchPlans();
   }, []);
 
-  const displayPlans = apiPlans.length > 0 ? apiPlans : plans;
+  const displayPlans = apiPlans;
 
   return (
     <section id="pricing" className="relative py-28 px-6">
@@ -122,11 +70,11 @@ export default function Pricing() {
           <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full text-xs font-mono text-indigo-400 border border-indigo-400/20 bg-indigo-400/5">
             BẢNG GIÁ
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-primary-container mb-4">
             Đơn giản, minh bạch<br />
             <span className="gradient-text">bảng giá</span>
           </h2>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto mb-8">
+          <p className="text-on-surface-variant text-lg max-w-xl mx-auto mb-8">
             Không có phí ẩn. Không có hóa đơn bất ngờ. Tăng giảm quy mô bất cứ lúc nào.
           </p>
 
@@ -190,29 +138,34 @@ export default function Pricing() {
               )}
 
               <div className="mb-4">
-                <h3 className="text-lg font-bold text-white mb-1">{plan.name}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed min-h-[40px]">{plan.desc}</p>
+                <h3 className="text-lg font-bold text-primary-container mb-1">{plan.name}</h3>
+                <p className="text-sm text-on-surface-variant leading-relaxed min-h-[40px]">{plan.desc}</p>
               </div>
 
               {/* Price */}
               <div className="mb-6">
                 <div className="flex items-end gap-1">
-                  <span className="text-4xl font-bold text-white">
+                  <span className="text-4xl font-bold text-primary-container">
                     ${billing === 'monthly' ? plan.monthlyPrice : plan.annualPrice}
                   </span>
-                  <span className="text-slate-500 mb-1.5 text-sm">/tháng</span>
+                  <span className="text-on-surface-variant mb-1.5 text-sm">/tháng</span>
                 </div>
-                {billing === 'annual' && (
+                {plan.monthlyPrice === 0 && plan.annualPrice === 0 && (
+                  <div className="text-xs text-red-400 font-mono mt-0.5 mb-1.5 bg-red-400/10 p-2 rounded">
+                    ⚠️ API chưa cấp giá thật
+                  </div>
+                )}
+                {billing === 'annual' && plan.annualPrice > 0 && (
                   <div className="text-xs text-green-400 font-mono mt-0.5 mb-1.5">
                     Thanh toán ${plan.annualPrice * 12}/năm — tiết kiệm ${(plan.monthlyPrice - plan.annualPrice) * 12}/năm
                   </div>
                 )}
                 {plan.setupFee > 0 ? (
-                  <div className="text-xs text-slate-500 font-mono mt-1">
+                  <div className="text-xs text-on-surface-variant font-mono mt-1">
                     + Phí khởi tạo: ${plan.setupFee} (Một lần)
                   </div>
                 ) : (
-                  <div className="text-xs text-slate-500 font-mono mt-1">
+                  <div className="text-xs text-on-surface-variant font-mono mt-1">
                     Miễn phí khởi tạo
                   </div>
                 )}
@@ -220,10 +173,10 @@ export default function Pricing() {
 
               {/* Specs */}
               <div className="mb-4 bg-slate-900/40 rounded-xl p-4 border border-slate-700/50">
-                <div className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Cấu hình</div>
+                <div className="text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wider">Cấu hình</div>
                 <ul className="space-y-2">
                   {plan.specs.map((spec: string) => (
-                    <li key={spec} className="flex items-center gap-2 text-sm text-white font-medium">
+                    <li key={spec} className="flex items-center gap-2 text-sm text-primary-container font-medium">
                       <span className="w-1.5 h-1.5 rounded-full" style={{ background: plan.color }} />
                       {spec}
                     </li>
@@ -233,10 +186,10 @@ export default function Pricing() {
 
               {/* Features */}
               <div className="mb-8 flex-1">
-                <div className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Tiện ích kèm theo</div>
+                <div className="text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wider">Tiện ích kèm theo</div>
                 <ul className="space-y-2.5">
                   {plan.features.map((feature: string) => (
-                    <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-300">
+                    <li key={feature} className="flex items-start gap-2.5 text-sm text-on-surface-variant">
                       <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 16 16" fill="none" style={{ color: plan.color }}>
                         <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.2" opacity="0.4"/>
                         <path d="M5 8L7 10L11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -248,7 +201,7 @@ export default function Pricing() {
               </div>
 
               <Link
-                href={`/checkout?planId=${plan.id || ''}&billing=${billing}`}
+                href={`/checkout?planId=${plan.id || ''}&priceId=${(billing === 'monthly' ? plan.monthlyPriceId : plan.annualPriceId) || ''}&billing=${billing}`}
                 className="w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200 text-center block"
                 style={
                   plan.highlight
@@ -273,7 +226,7 @@ export default function Pricing() {
         </div>
 
         {/* Footer note */}
-        <p className="text-center text-sm text-slate-600 mt-8 font-mono">
+        <p className="text-center text-sm text-on-surface-variant mt-8 font-mono">
           Tất cả các gói đều bao gồm chống DDoS, giám sát hạ tầng 24/7 và hoàn tiền trong vòng 14 ngày.
         </p>
       </div>

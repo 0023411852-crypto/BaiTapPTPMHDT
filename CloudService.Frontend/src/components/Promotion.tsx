@@ -9,7 +9,9 @@ export default function Promotion() {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const res = await fetch('http://localhost:5154/api/Promotions');
+        const res = await fetch('http://localhost:5154/api/Promotions', {
+          signal: AbortSignal.timeout(5000)
+        });
         if (res.ok) {
           const data = await res.json();
           // Lọc ra các khuyến mãi đang active (nếu có logic filter)

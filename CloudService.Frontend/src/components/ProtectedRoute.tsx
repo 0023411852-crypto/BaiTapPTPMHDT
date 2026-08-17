@@ -12,14 +12,29 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Xử lý BFCache của trình duyệt (Ngăn chặn việc back lại thấy nội dung cũ khi đã đăng xuất)
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        const token = localStorage.getItem('token');
+        const demoRole = localStorage.getItem('demo_role');
+        if (!token && !demoRole) {
+          window.location.replace('/');
+        }
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
+
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
       const demoRole = localStorage.getItem('demo_role');
 
-      // 1. Nếu không có token và không có demo_role, chuyển về đăng nhập
+      // 1. Nếu không có token và không có demo_role, chuyển về trang chủ
       if (!token && !demoRole) {
-        router.push('/login');
+        router.push('/');
         return;
       }
 

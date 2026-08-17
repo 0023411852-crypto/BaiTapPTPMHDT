@@ -100,11 +100,11 @@ export default function Services() {
           <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full text-xs font-mono text-blue-400 border border-blue-400/20 bg-blue-400/5">
             HẠ TẦNG
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-primary-container mb-4">
             Tất cả những gì hệ thống của bạn cần,<br />
             <span className="gradient-text">tại cùng một nơi</span>
           </h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+          <p className="text-on-surface-variant text-lg max-w-2xl mx-auto">
             Từ máy chủ vật lý đến Kubernetes — NovaCloud cung cấp toàn bộ công nghệ hạ tầng cho các đội ngũ phát triển hiện đại.
           </p>
         </div>
@@ -140,13 +140,13 @@ export default function Services() {
               </div>
 
               <div className="text-xs font-mono text-slate-500 mb-1">{service.subtitle}</div>
-              <h3 className="text-lg font-bold text-white mb-2">{service.title}</h3>
-              <p className="text-slate-400 text-sm leading-relaxed mb-4">{service.desc}</p>
+              <h3 className="text-lg font-bold text-primary-container mb-2">{service.title}</h3>
+              <p className="text-on-surface-variant text-sm leading-relaxed mb-4">{service.desc}</p>
 
               {/* Features */}
               <ul className="space-y-1.5">
                 {service.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-xs text-slate-400">
+                  <li key={feature} className="flex items-center gap-2 text-xs text-on-surface-variant">
                     <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: service.color }} />
                     {feature}
                   </li>
