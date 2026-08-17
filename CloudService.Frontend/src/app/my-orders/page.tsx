@@ -1,6 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import { useRouter } from 'next/navigation';
 
 export default function MyOrdersPage() {
@@ -12,8 +14,16 @@ export default function MyOrdersPage() {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (!token) {
-          router.push('/login');
+        const demoRole = localStorage.getItem('demo_role');
+        if (!token && !demoRole) {
+          window.location.replace('/');
+          return;
+        }
+
+        // Demo account: Hiển thị giỏ hàng trống hoặc mock
+        if (!token && demoRole) {
+          setOrders([]); // Giả lập chưa có đơn hàng cho tài khoản Demo
+          setIsLoading(false);
           return;
         }
 
@@ -39,8 +49,17 @@ export default function MyOrdersPage() {
     fetchOrders();
   }, [router]);
 
-  const getStatusDisplay = (status: string) => {
-    switch (status?.toLowerCase()) {
+  const getStatusDisplay = (statusValue: any) => {
+    // Map integer status to string if needed
+    let status = String(statusValue).toLowerCase();
+    
+    // Status mapping (0 = Pending, 1 = Processing, 2 = Completed, 3 = Cancelled)
+    if (status === '0') status = 'pending';
+    if (status === '1') status = 'processing';
+    if (status === '2') status = 'completed';
+    if (status === '3') status = 'cancelled';
+
+    switch (status) {
       case 'completed':
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest">
@@ -52,6 +71,13 @@ export default function MyOrdersPage() {
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs font-bold uppercase tracking-widest">
             <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></div>
+            Chờ thanh toán
+          </span>
+        );
+      case 'processing':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
             Đang xử lý
           </span>
         );
@@ -63,31 +89,34 @@ export default function MyOrdersPage() {
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest">
-            {status || 'Mới'}
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-500/10 border border-slate-500/20 text-slate-400 text-xs font-bold uppercase tracking-widest">
+            {statusValue}
           </span>
         );
     }
   };
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center text-white">Đang tải lịch sử đơn hàng...</div>;
+    return <div className="min-h-[70vh] flex items-center justify-center text-gray-500">Đang tải lịch sử đơn hàng...</div>;
   }
 
   return (
-    <div className="container mx-auto px-4 py-20 min-h-screen">
-      <div className="max-w-6xl mx-auto">
-        <header className="mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">Đơn hàng của tôi</h1>
-          <p className="text-lg text-slate-400">Quản lý lịch sử giao dịch và dịch vụ của bạn.</p>
-        </header>
+    <>
+      <Navbar />
+      <div className="bg-gray-50 pt-24 pb-20 min-h-[70vh]">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <header className="mb-10 text-center md:text-left">
+              <h1 className="text-4xl md:text-4xl font-bold text-gray-900 mb-2 tracking-tight">Đơn hàng của tôi</h1>
+              <p className="text-gray-500">Quản lý lịch sử giao dịch và dịch vụ của bạn.</p>
+            </header>
 
-        {/* Data View */}
+            {/* Data View */}
         <div className="w-full">
-          <div className="bg-[#0f1d35]/80 backdrop-blur-xl rounded-xl overflow-hidden shadow-2xl p-1 border border-[rgba(99,179,255,0.12)]">
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-lg">
             
             {/* Table Header */}
-            <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 border-b border-[rgba(99,179,255,0.12)] text-xs font-semibold text-slate-400 tracking-wider uppercase">
+            <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-200 bg-gray-50/50 text-xs font-semibold text-gray-500 tracking-wider uppercase">
               <div className="col-span-4">Gói dịch vụ (Mã Đơn)</div>
               <div className="col-span-2 text-right">Số tiền</div>
               <div className="col-span-3 text-center">Trạng thái</div>
@@ -96,36 +125,42 @@ export default function MyOrdersPage() {
             </div>
 
             {/* Table Body */}
-            <div className="flex flex-col gap-2 p-2">
+            <div className="flex flex-col gap-0">
               {orders.length === 0 ? (
-                <div className="p-8 text-center text-slate-400">Bạn chưa có đơn hàng nào.</div>
+                <div className="p-12 text-center text-gray-500">Bạn chưa có đơn hàng nào.</div>
               ) : (
                 orders.map((order, index) => (
-                  <div key={order.id || index} className="bg-[#0a1628]/50 hover:bg-[#0a1628]/80 border border-[rgba(99,179,255,0.05)] hover:border-[rgba(99,179,255,0.15)] rounded-lg p-4 md:px-4 md:py-3 grid grid-cols-1 md:grid-cols-12 gap-4 items-center transition-all">
-                    <div className="col-span-1 md:col-span-4 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                  <div key={order.id || index} className="group border-b border-gray-100 hover:bg-blue-50/30 p-4 md:px-6 md:py-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-center transition-all last:border-0">
+                    <div className="col-span-1 md:col-span-4 flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 shadow-sm">
                         <span className="material-symbols-outlined text-[20px]">dns</span>
                       </div>
                       <div>
-                        <div className="text-sm text-white font-semibold">{order.servicePlanName || 'Dịch vụ NovaCloud'}</div>
-                        <div className="text-xs font-mono text-slate-400">{order.id?.substring(0, 8).toUpperCase() || `ORD-${index+1}`}</div>
+                        <div className="text-sm text-gray-900 font-bold group-hover:text-blue-600 transition-colors">{order.servicePlanName || 'Dịch vụ NovaCloud'}</div>
+                        <div className="text-xs font-mono text-gray-400 mt-0.5">{order.id?.substring(0, 8).toUpperCase() || `ORD-${index+1}`}</div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 md:contents gap-2 text-sm md:text-base">
-                      <div className="md:col-span-2 md:text-right text-blue-400 font-mono font-bold flex items-center md:justify-end">
-                        <span className="md:hidden text-slate-400 mr-2">Số tiền:</span> {order.totalAmount ? order.totalAmount.toLocaleString() : 0}₫
+                      <div className="md:col-span-2 md:text-right text-gray-900 font-mono font-semibold flex items-center md:justify-end">
+                        <span className="md:hidden text-gray-400 mr-2">Số tiền:</span> {order.totalAmount ? order.totalAmount.toLocaleString() : 0}₫
                       </div>
                       <div className="md:col-span-3 flex justify-start md:justify-center items-center">
-                        <span className="md:hidden text-slate-400 mr-2">Trạng thái:</span>
+                        <span className="md:hidden text-gray-400 mr-2">Trạng thái:</span>
                         {getStatusDisplay(order.status)}
                       </div>
-                      <div className="md:col-span-2 text-slate-400 flex items-center text-xs">
-                        <span className="md:hidden text-slate-400 mr-2">Ngày đặt:</span> {new Date(order.createdAt || Date.now()).toLocaleDateString('vi-VN')}
+                      <div className="md:col-span-2 text-gray-500 flex items-center text-xs font-medium">
+                        <span className="md:hidden text-gray-400 mr-2">Ngày đặt:</span> {new Date(order.createdAt || Date.now()).toLocaleDateString('vi-VN')}
                       </div>
-                      <div className="col-span-2 md:col-span-1 flex justify-end md:justify-end items-center mt-2 md:mt-0">
-                        <Link href={`/payment?orderId=${order.id}&amount=${order.totalAmount}`} className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors flex items-center gap-1">
-                          Thanh toán <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-                        </Link>
+                      <div className="col-span-2 md:col-span-1 flex justify-end md:justify-end items-center mt-2 md:mt-0 gap-3">
+                        {(String(order.status).toLowerCase() === 'pending' || String(order.status) === '0') ? (
+                          <Link href={`/payment?orderId=${order.id}&amount=${order.totalAmount}`} className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1">
+                            Thanh toán
+                          </Link>
+                        ) : (
+                          <button className="text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
+                            Xem <span className="material-symbols-outlined text-[16px]">visibility</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -134,13 +169,13 @@ export default function MyOrdersPage() {
             </div>
 
             {/* Pagination */}
-            <div className="px-6 py-4 border-t border-[rgba(99,179,255,0.12)] flex justify-between items-center text-sm text-slate-400 bg-[#050c1a]/50">
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center text-sm text-gray-500 bg-gray-50">
               <span>Hiển thị {orders.length} đơn hàng</span>
               <div className="flex gap-2">
-                <button className="p-1.5 rounded-lg bg-[#0a1628] border border-slate-700 opacity-50 cursor-not-allowed">
+                <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 opacity-50 cursor-not-allowed text-gray-400">
                   <span className="material-symbols-outlined text-[18px]">chevron_left</span>
                 </button>
-                <button className="p-1.5 rounded-lg bg-[#0a1628] border border-slate-700 hover:border-slate-500 hover:text-white transition-colors">
+                <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:border-blue-400 hover:text-blue-600 transition-colors text-gray-600 shadow-sm">
                   <span className="material-symbols-outlined text-[18px]">chevron_right</span>
                 </button>
               </div>
@@ -149,6 +184,9 @@ export default function MyOrdersPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+      </div>
+      <Footer />
+    </>
   );
 }
