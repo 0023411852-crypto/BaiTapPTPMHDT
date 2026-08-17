@@ -54,51 +54,51 @@ export default function AffiliateManager() {
     <div className="max-w-[1280px] mx-auto w-full flex flex-col h-full relative">
       <div className="mb-8 flex justify-between items-end mt-8">
         <div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Quản lý đăng ký Affiliate</h2>
-          <p className="text-slate-400">Xét duyệt và quản lý các đối tác tham gia chương trình tiếp thị liên kết.</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Quản lý đăng ký Affiliate</h2>
+          <p className="text-gray-500">Xét duyệt và quản lý các đối tác tham gia chương trình tiếp thị liên kết.</p>
         </div>
       </div>
 
-      <div className="bg-[#0f1d35]/80 backdrop-blur-xl border border-[rgba(99,179,255,0.12)] rounded-xl overflow-hidden shadow-2xl flex-1 flex flex-col">
+      <div className="bg-white backdrop-blur-xl border border-gray-200 rounded-xl overflow-hidden shadow-2xl flex-1 flex flex-col">
         <div className="overflow-x-auto flex-1 min-h-[300px]">
           {isLoading ? (
-            <div className="flex items-center justify-center h-full text-slate-400">Đang tải dữ liệu...</div>
+            <div className="flex items-center justify-center h-full text-gray-500">Đang tải dữ liệu...</div>
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[rgba(99,179,255,0.12)] bg-[#0a1628]/50">
-                  <th className="py-4 px-6 font-mono text-xs text-slate-400 uppercase tracking-wider">Khách hàng</th>
-                  <th className="py-4 px-6 font-mono text-xs text-slate-400 uppercase tracking-wider">Website / Kênh</th>
-                  <th className="py-4 px-6 font-mono text-xs text-slate-400 uppercase tracking-wider">Trạng thái</th>
-                  <th className="py-4 px-6 font-mono text-xs text-slate-400 uppercase tracking-wider">Ngày đăng ký</th>
-                  <th className="py-4 px-6 font-mono text-xs text-slate-400 uppercase tracking-wider text-right">Hành động</th>
+                <tr className="border-b border-gray-200 bg-white">
+                  <th className="py-4 px-6 font-mono text-xs text-gray-500 uppercase tracking-wider">Khách hàng</th>
+                  <th className="py-4 px-6 font-mono text-xs text-gray-500 uppercase tracking-wider">Website / Kênh</th>
+                  <th className="py-4 px-6 font-mono text-xs text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                  <th className="py-4 px-6 font-mono text-xs text-gray-500 uppercase tracking-wider">Ngày đăng ký</th>
+                  <th className="py-4 px-6 font-mono text-xs text-gray-500 uppercase tracking-wider text-right">Hành động</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[rgba(99,179,255,0.12)] text-sm">
+              <tbody className="divide-y divide-[rgba(167,139,250,0.15)] text-sm">
                 {applications.length === 0 ? (
-                  <tr><td colSpan={5} className="text-center py-8 text-slate-400">Không có đơn đăng ký nào.</td></tr>
+                  <tr><td colSpan={5} className="text-center py-8 text-gray-500">Không có đơn đăng ký nào.</td></tr>
                 ) : (
                   applications.map(app => (
-                    <tr key={app.id} className="hover:bg-white/5 transition-colors group">
+                    <tr key={app.id} className="hover:bg-gray-50 transition-colors group">
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[#1a2c47] flex items-center justify-center text-blue-400 font-bold text-xs border border-[rgba(99,179,255,0.12)]">
+                          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-blue-600 font-bold text-xs border border-gray-200">
                             {app.userName ? app.userName.substring(0, 2).toUpperCase() : 'U'}
                           </div>
                           <div>
-                            <div className="font-medium text-white">{app.userName || 'Unknown'}</div>
+                            <div className="font-medium text-gray-900">{app.userName || 'Unknown'}</div>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <a href={app.websiteUrl} target="_blank" className="text-blue-400 hover:underline">{app.websiteUrl || 'N/A'}</a>
+                        <a href={app.websiteUrl} target="_blank" className="text-blue-600 hover:underline">{app.websiteUrl || 'N/A'}</a>
                       </td>
                       <td className="py-4 px-6">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full font-mono text-[10px] border ${app.status?.toLowerCase() === 'approved' ? 'bg-green-500/10 text-green-400 border-green-500/20' : app.status?.toLowerCase() === 'rejected' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'}`}>
                           {app.status || 'Pending'}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-slate-400">{new Date(app.createdAt).toLocaleDateString('vi-VN')}</td>
+                      <td className="py-4 px-6 text-gray-500">{new Date(app.createdAt).toLocaleDateString('vi-VN')}</td>
                       <td className="py-4 px-6 text-right">
                         {app.status?.toLowerCase() === 'pending' ? (
                           <div className="flex justify-end gap-2">
@@ -110,7 +110,7 @@ export default function AffiliateManager() {
                             </button>
                           </div>
                         ) : (
-                          <span className="text-slate-500 italic">Đã xử lý</span>
+                          <span className="text-gray-400 italic">Đã xử lý</span>
                         )}
                       </td>
                     </tr>
@@ -120,10 +120,11 @@ export default function AffiliateManager() {
             </table>
           )}
         </div>
-        <div className="border-t border-[rgba(99,179,255,0.12)] p-4 flex items-center justify-between bg-[#0a1628]/30">
-          <span className="text-sm text-slate-400">Hiển thị danh sách đăng ký Affiliate</span>
+        <div className="border-t border-gray-200 p-4 flex items-center justify-between bg-white">
+          <span className="text-sm text-gray-500">Hiển thị danh sách đăng ký Affiliate</span>
         </div>
       </div>
     </div>
   );
 }
+
