@@ -15,7 +15,7 @@ export default function PricingPage() {
       </div>
 
       <Navbar />
-      
+
       <main className="flex-grow pt-24 relative z-10">
         <div className="container mx-auto px-6 text-center pt-12 pb-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary-container">Bảng Giá Dịch Vụ</h1>
