@@ -52,6 +52,48 @@ export default function ProfilePage() {
     fetchUser();
   }, []);
 
+  const [editFullName, setEditFullName] = useState('');
+  const [profileMessage, setProfileMessage] = useState('');
+  const [profileError, setProfileError] = useState('');
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+
+  useEffect(() => {
+    if (user && user.fullName) {
+      setEditFullName(user.fullName);
+    }
+  }, [user]);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileMessage('');
+    setProfileError('');
+    setIsUpdatingProfile(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:5154/api/Users/me/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ fullName: editFullName })
+      });
+
+      if (res.ok) {
+        setProfileMessage('Cập nhật thông tin thành công!');
+        setUser(prev => prev ? { ...prev, fullName: editFullName } : prev);
+      } else {
+        const data = await res.json();
+        setProfileError(data.message || 'Lỗi khi cập nhật thông tin.');
+      }
+    } catch (err: any) {
+      setProfileError('Lỗi kết nối server.');
+    } finally {
+      setIsUpdatingProfile(false);
+    }
+  };
+
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
@@ -120,7 +162,10 @@ export default function ProfilePage() {
                 <h2 className="text-2xl font-bold text-gray-900">Thông tin cá nhân</h2>
               </div>
               
-              <form className="flex-1 flex flex-col gap-6">
+              <form className="flex-1 flex flex-col gap-6" onSubmit={handleUpdateProfile}>
+                {profileError && <div className="text-red-600 bg-red-50 border border-red-200 p-3 rounded-lg text-sm">{profileError}</div>}
+                {profileMessage && <div className="text-green-600 bg-green-50 border border-green-200 p-3 rounded-lg text-sm">{profileMessage}</div>}
+                
                 {/* Avatar Section */}
                 <div className="flex items-center gap-6 mb-4">
                   <div className="relative w-24 h-24 rounded-full border-2 border-gray-200 overflow-hidden group">
@@ -142,7 +187,7 @@ export default function ProfilePage() {
                   <label className="block text-sm font-bold text-gray-700 uppercase mb-2" htmlFor="fullName">Họ và tên</label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-[20px]">badge</span>
-                    <input className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-12 pr-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors" id="fullName" placeholder="Nhập họ và tên" type="text" defaultValue={user.fullName} readOnly />
+                    <input className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-12 pr-4 py-3 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors" id="fullName" placeholder="Nhập họ và tên" type="text" value={editFullName} onChange={(e) => setEditFullName(e.target.value)} required />
                   </div>
                 </div>
                 
@@ -153,6 +198,13 @@ export default function ProfilePage() {
                     <input className="w-full bg-gray-100 border border-gray-200 rounded-lg pl-12 pr-4 py-3 text-gray-500 cursor-not-allowed" id="email" placeholder="Nhập email" readOnly type="email" defaultValue={user.email} />
                   </div>
                   <p className="text-xs text-gray-500 mt-2 font-mono">* Email không thể thay đổi để đảm bảo bảo mật tài khoản.</p>
+                </div>
+                
+                <div className="mt-auto pt-6 flex justify-end border-t border-gray-100">
+                  <button type="submit" disabled={isUpdatingProfile} className="w-full md:w-auto px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-70">
+                    <span className="material-symbols-outlined text-[18px]">save</span>
+                    {isUpdatingProfile ? 'Đang lưu...' : 'Lưu thông tin'}
+                  </button>
                 </div>
               </form>
             </div>

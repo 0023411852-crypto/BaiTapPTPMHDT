@@ -9,43 +9,15 @@ export default function Promotion() {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const res = await fetch('http://localhost:5154/api/Promotions', {
+        const res = await fetch('http://localhost:5154/api/Promotions/active', {
           signal: AbortSignal.timeout(5000)
         });
         if (res.ok) {
           const data = await res.json();
-          // Lọc ra các khuyến mãi đang active (nếu có logic filter)
-          setPromotions(data.data || []);
-        } else {
-          // Mock data fallback if API doesn't exist yet
-          const demoRole = localStorage.getItem('demo_role');
-          if (demoRole) {
-            setPromotions([
-              {
-                id: '1',
-                name: 'FLASH SALE MÙA HÈ',
-                description: 'Giảm giá 50% cho tất cả các gói dịch vụ VPS Pro và Enterprise. Nhanh tay đăng ký!',
-                discountPercent: 50,
-                endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
-              }
-            ]);
-          }
+          setPromotions(data.data || data || []);
         }
       } catch (e) {
         console.error('Lỗi khi fetch Promotions:', e);
-        // Fallback for visual testing
-        const demoRole = localStorage.getItem('demo_role');
-        if (demoRole) {
-          setPromotions([
-            {
-              id: '1',
-              name: 'SIÊU KHUYẾN MÃI CLOUD',
-              description: 'Giảm 30% trọn đời khi mua gói năm.',
-              discountPercent: 30,
-              endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-            }
-          ]);
-        }
       } finally {
         setIsLoading(false);
       }

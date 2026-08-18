@@ -1,16 +1,44 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 export default function AffiliateRegistrationPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [existingApp, setExistingApp] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({ websiteUrl: '', promotionalMethods: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    const fetchMyApp = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch('http://localhost:5154/api/AffiliateApplications/my-application', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setExistingApp(data);
+          setIsSubmitted(true);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMyApp();
+  }, []);
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (existingApp) return;
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
@@ -29,6 +57,9 @@ export default function AffiliateRegistrationPage() {
       if (res.ok) {
         setIsSubmitted(true);
         setFormData({ websiteUrl: '', promotionalMethods: '' });
+        // Optionally fetch again to get the saved app
+        const savedData = await res.json().catch(() => ({}));
+        setExistingApp(savedData);
       } else {
         const errData = await res.json().catch(() => ({}));
         alert(errData.message || 'Có lỗi xảy ra, vui lòng thử lại sau.');
@@ -186,33 +217,43 @@ export default function AffiliateRegistrationPage() {
               ) : (
                 /* Status Card */
                 <div className="bg-surface-container-lowest border border-border-subtle rounded-2xl p-8 shadow-xl relative overflow-hidden text-center h-full flex flex-col justify-center min-h-[440px] animate-in zoom-in-95 duration-500">
-                  <div className="absolute top-0 left-0 w-full h-[3px] bg-status-success"></div>
+                  <div className={`absolute top-0 left-0 w-full h-[3px] ${existingApp?.status === 1 ? 'bg-status-success' : existingApp?.status === 2 ? 'bg-status-error' : 'bg-status-warning'}`}></div>
                   
                   <div className="flex flex-col items-center space-y-6">
                     {/* Animated Pending Icon */}
                     <div className="relative">
                       <div className="absolute inset-0 rounded-full bg-secondary-container/20 animate-ping opacity-75"></div>
                       <div className="w-20 h-20 rounded-full bg-surface-container border border-secondary-container/20 flex items-center justify-center relative z-10">
-                        <span className="material-symbols-outlined text-secondary-container text-4xl animate-pulse">hourglass_top</span>
+                        <span className="material-symbols-outlined text-secondary-container text-4xl animate-pulse">
+                          {existingApp?.status === 1 ? 'check_circle' : existingApp?.status === 2 ? 'cancel' : 'hourglass_top'}
+                        </span>
                       </div>
                     </div>
                     
                     <div className="space-y-4">
                       <div className="inline-block bg-surface-container border border-secondary-container/20 rounded-full px-4 py-1.5 mb-2">
-                        <span className="font-mono text-xs font-bold text-secondary-container uppercase tracking-widest">Trạng thái: Đang chờ duyệt</span>
+                        <span className="font-mono text-xs font-bold text-secondary-container uppercase tracking-widest">
+                          Trạng thái: {existingApp?.status === 1 ? 'Đã duyệt' : existingApp?.status === 2 ? 'Đã từ chối' : 'Đang chờ duyệt'}
+                        </span>
                       </div>
-                      <h3 className="text-3xl font-bold text-primary-container">Đã nhận yêu cầu</h3>
+                      <h3 className="text-3xl font-bold text-primary-container">
+                        {existingApp?.status === 1 ? 'Chúc mừng bạn!' : existingApp?.status === 2 ? 'Rất tiếc!' : 'Đã nhận yêu cầu'}
+                      </h3>
                       <p className="text-on-surface-variant max-w-sm mx-auto text-sm leading-relaxed">
-                        Cảm ơn bạn đã đăng ký. Đội ngũ NimbusCloud đang xem xét thông tin của bạn và sẽ phản hồi qua email trong vòng 24-48 giờ làm việc.
+                        {existingApp?.status === 1 ? 'Đơn đăng ký của bạn đã được duyệt. Hãy bắt đầu quảng bá ngay!' : 
+                         existingApp?.status === 2 ? 'Đơn đăng ký của bạn không phù hợp với tiêu chí hiện tại của chúng tôi.' : 
+                         'Cảm ơn bạn đã đăng ký. Đội ngũ NimbusCloud đang xem xét thông tin của bạn và sẽ phản hồi qua email trong vòng 24-48 giờ làm việc.'}
                       </p>
                     </div>
                     
-                    <button 
-                      className="mt-8 px-6 py-2.5 rounded-lg border border-border-subtle hover:bg-surface-container text-on-surface-variant hover:text-primary-container transition-colors font-mono text-sm font-bold" 
-                      onClick={() => setIsSubmitted(false)}
-                    >
-                      Quay lại Form
-                    </button>
+                    {!existingApp && (
+                      <button 
+                        className="mt-8 px-6 py-2.5 rounded-lg border border-border-subtle hover:bg-surface-container text-on-surface-variant hover:text-primary-container transition-colors font-mono text-sm font-bold" 
+                        onClick={() => setIsSubmitted(false)}
+                      >
+                        Quay lại Form
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

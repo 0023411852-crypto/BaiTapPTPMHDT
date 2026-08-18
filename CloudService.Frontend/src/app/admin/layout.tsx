@@ -29,6 +29,7 @@ export default function AdminLayout({
     { name: 'Tin tức', path: '/admin/news', icon: 'article', roles: ['Admin', 'Editor'] },
     { name: 'Đối tác', path: '/admin/affiliates', icon: 'handshake', roles: ['Admin', 'Editor'] },
     { name: 'Nhật ký hệ thống', path: '/admin/logs', icon: 'manage_search', roles: ['Admin'] },
+    { name: 'Liên hệ', path: '/admin/contacts', icon: 'contact_support', roles: ['Admin', 'Editor'] },
   ];
 
   const filteredMenu = menuItems.filter(item => item.roles.includes(role));

@@ -118,7 +118,5 @@ namespace CloudService.Application.Services
             
             return true;
         }
-
-
     }
 }
