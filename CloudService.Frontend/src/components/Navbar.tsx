@@ -78,12 +78,27 @@ export default function Navbar() {
     return () => window.removeEventListener('pageshow', handlePageShow);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('demo_role');
-    setUser(null);
-    setDropdownOpen(false);
-    window.location.href = '/';
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (token && refreshToken) {
+        await fetch('http://localhost:5154/api/Auth/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, refreshToken })
+        });
+      }
+    } catch (e) {
+      console.error('Logout error', e);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('demo_role');
+      setUser(null);
+      setDropdownOpen(false);
+      window.location.href = '/';
+    }
   };
 
   return (

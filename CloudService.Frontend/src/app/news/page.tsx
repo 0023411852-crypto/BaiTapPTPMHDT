@@ -127,18 +127,22 @@ export default function NewsPage() {
                 className="rounded-2xl overflow-hidden group transition-all duration-300 flex flex-col bg-white border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-1"
               >
                 <div className="relative h-48 bg-slate-100 overflow-hidden">
-                  <img 
-                    src={article.thumbnailUrl || 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=340&fit=crop&auto=format'} 
-                    alt={article.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                  />
+                  {article.thumbnailUrl && (
+                    <img 
+                      src={article.thumbnailUrl} 
+                      alt={article.title} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <span
-                    className="absolute top-4 left-4 px-2.5 py-1 rounded-lg text-xs font-semibold backdrop-blur-md"
-                    style={{ background: 'rgba(255,255,255,0.9)', color: categoryColor }}
-                  >
-                    {article.category || 'Tin tức'}
-                  </span>
+                  {article.category && (
+                    <span
+                      className="absolute top-4 left-4 px-2.5 py-1 rounded-lg text-xs font-semibold backdrop-blur-md"
+                      style={{ background: 'rgba(255,255,255,0.9)', color: getCategoryColor(article.category) }}
+                    >
+                      {article.category}
+                    </span>
+                  )}
                 </div>
                 <div className="p-6 flex flex-col flex-1">
                   <div className="text-xs text-gray-500 font-mono mb-3">{dateStr}</div>

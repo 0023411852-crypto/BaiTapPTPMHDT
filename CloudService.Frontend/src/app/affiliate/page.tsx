@@ -6,10 +6,39 @@ import Footer from '../../components/Footer';
 
 export default function AffiliateRegistrationPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState({ websiteUrl: '', promotionalMethods: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:5154/api/AffiliateApplications', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          websiteUrl: formData.websiteUrl,
+          promotionalMethods: formData.promotionalMethods
+        })
+      });
+
+      if (res.ok) {
+        setIsSubmitted(true);
+        setFormData({ websiteUrl: '', promotionalMethods: '' });
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.message || 'Có lỗi xảy ra, vui lòng thử lại sau.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi kết nối.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -108,6 +137,8 @@ export default function AffiliateRegistrationPage() {
                           <span className="material-symbols-outlined text-outline text-lg">link</span>
                         </div>
                         <input 
+                          value={formData.websiteUrl}
+                          onChange={e => setFormData({...formData, websiteUrl: e.target.value})}
                           className="w-full bg-surface-container border border-border-subtle rounded-lg pl-10 pr-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none placeholder:text-outline-variant hover:bg-surface-container-high" 
                           id="promoUrl" 
                           placeholder="https://your-website.com" 
@@ -123,6 +154,8 @@ export default function AffiliateRegistrationPage() {
                         Phương thức quảng bá dự kiến <span className="text-status-error">*</span>
                       </label>
                       <textarea 
+                        value={formData.promotionalMethods}
+                        onChange={e => setFormData({...formData, promotionalMethods: e.target.value})}
                         className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none placeholder:text-outline-variant hover:bg-surface-container-high resize-none" 
                         id="promoMethod" 
                         placeholder="Mô tả ngắn gọn cách bạn dự định giới thiệu NimbusCloud (VD: Viết blog, Review Youtube, Chạy Ads...)" 
@@ -134,12 +167,13 @@ export default function AffiliateRegistrationPage() {
                     {/* Submit Button */}
                     <div className="pt-4">
                       <button 
-                        className="w-full relative group overflow-hidden bg-primary-container hover:bg-primary text-on-primary rounded-lg py-3.5 transition-colors duration-300 shadow-sm" 
+                        className="w-full relative group overflow-hidden bg-primary-container hover:bg-primary text-on-primary rounded-lg py-3.5 transition-colors duration-300 shadow-sm disabled:opacity-50" 
                         type="submit"
+                        disabled={isSubmitting}
                       >
                         <div className="relative z-10 flex items-center justify-center gap-2">
-                          <span className="font-bold text-lg">Gửi đăng ký</span>
-                          <span className="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
+                          <span className="font-bold text-lg">{isSubmitting ? 'Đang gửi...' : 'Gửi đăng ký'}</span>
+                          {!isSubmitting && <span className="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>}
                         </div>
                       </button>
                     </div>

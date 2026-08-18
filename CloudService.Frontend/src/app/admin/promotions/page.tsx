@@ -22,6 +22,47 @@ export default function PromotionsManager() {
     servicePlanId: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const handleOpenAdd = () => {
+    setEditingId(null);
+    setFormData({
+      code: '',
+      discountPercentage: 10,
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0],
+      servicePlanId: servicePlans.length > 0 ? servicePlans[0].id : ''
+    });
+    setShowModal(true);
+  };
+
+  const handleOpenEdit = (promo: any) => {
+    setEditingId(promo.id);
+    setFormData({
+      code: promo.code,
+      discountPercentage: promo.discountPercentage,
+      startDate: new Date(promo.startDate).toISOString().split('T')[0],
+      endDate: new Date(promo.endDate).toISOString().split('T')[0],
+      servicePlanId: promo.servicePlanId || (servicePlans.length > 0 ? servicePlans[0].id : '')
+    });
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa khuyến mãi này?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5154/api/Promotions/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Xóa thất bại');
+      alert('Đã xóa thành công!');
+      fetchPromotions();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
 
   const fetchPromotions = async () => {
     try {
@@ -103,8 +144,12 @@ export default function PromotionsManager() {
         isActive: true
       };
 
-      const res = await fetch('http://localhost:5154/api/Promotions', {
-        method: 'POST',
+      const url = editingId 
+        ? `http://localhost:5154/api/Promotions/${editingId}`
+        : 'http://localhost:5154/api/Promotions';
+        
+      const res = await fetch(url, {
+        method: editingId ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -117,7 +162,7 @@ export default function PromotionsManager() {
         throw new Error(errorData.message || 'Lỗi khi tạo khuyến mãi');
       }
 
-      alert('Tạo khuyến mãi thành công!');
+      alert(editingId ? 'Cập nhật khuyến mãi thành công!' : 'Tạo khuyến mãi thành công!');
       setShowModal(false);
       // Reset form
       setFormData({
@@ -143,7 +188,7 @@ export default function PromotionsManager() {
           <p className="text-gray-500">Quản lý các mã giảm giá và chương trình ưu đãi.</p>
         </div>
         <button 
-          onClick={() => setShowModal(true)}
+          onClick={handleOpenAdd}
           className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-5 rounded-lg flex items-center gap-2 font-medium shadow-sm hover:scale-105 transition-transform"
         >
           <span className="material-symbols-outlined text-[18px]">add</span>
@@ -226,9 +271,14 @@ export default function PromotionsManager() {
                     </div>
                   </td>
                   <td className="py-4 px-6 text-right">
-                    <button className="text-gray-500 hover:text-blue-600 p-1 rounded-md hover:bg-gray-50 transition-colors">
-                      <span className="material-symbols-outlined text-[20px]">edit</span>
-                    </button>
+                    <div className="flex justify-end gap-2">
+                      <button onClick={() => handleOpenEdit(promo)} className="text-gray-500 hover:text-blue-600 p-1 rounded-md hover:bg-gray-50 transition-colors" title="Sửa">
+                        <span className="material-symbols-outlined text-[20px]">edit</span>
+                      </button>
+                      <button onClick={() => handleDelete(promo.id)} className="text-gray-500 hover:text-red-600 p-1 rounded-md hover:bg-gray-50 transition-colors" title="Xóa">
+                        <span className="material-symbols-outlined text-[20px]">delete</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -259,7 +309,7 @@ export default function PromotionsManager() {
           {/* Modal Content */}
           <div className="w-full max-w-lg bg-white backdrop-blur-2xl border border-gray-200 rounded-xl overflow-hidden relative z-10 shadow-sm animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-900">Thêm Khuyến Mãi Mới</h2>
+              <h2 className="text-xl font-bold text-gray-900">{editingId ? 'Cập nhật Khuyến Mãi' : 'Thêm Khuyến Mãi Mới'}</h2>
               <button 
                 onClick={() => setShowModal(false)}
                 className="text-gray-500 hover:text-red-500 transition-colors rounded-full p-1 hover:bg-gray-50"
@@ -354,7 +404,7 @@ export default function PromotionsManager() {
                 disabled={isSubmitting}
                 className={`bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg text-white font-medium shadow-sm transition-colors ${isSubmitting ? 'opacity-70 cursor-wait' : ''}`}
               >
-                {isSubmitting ? 'Đang lưu...' : 'Lưu Khuyến Mãi'}
+                {isSubmitting ? 'Đang lưu...' : (editingId ? 'Cập nhật Khuyến Mãi' : 'Lưu Khuyến Mãi')}
               </button>
             </div>
           </div>

@@ -56,27 +56,51 @@ const testimonials = [
 ]
 
 export default function Testimonials() {
-  const [activeIndex, setActiveIndex] = useState(0)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [data, setData] = useState<any[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const res = await fetch('http://localhost:5154/api/Testimonials?onlyVisible=true');
+        if (res.ok) {
+          const result = await res.json();
+          if (result.data && result.data.length > 0) {
+            setData(result.data);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch testimonials', err);
+      }
+      setData(testimonials);
+    };
+    fetchTestimonials();
+  }, []);
 
   const startInterval = () => {
     intervalRef.current = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % testimonials.length)
-    }, 5000)
-  }
+      setActiveIndex((prev) => (prev + 1) % Math.max(1, data.length));
+    }, 5000);
+  };
 
   useEffect(() => {
-    startInterval()
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [])
+    if (data.length > 0) {
+      startInterval();
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [data]);
 
   const goTo = (i: number) => {
-    setActiveIndex(i)
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    startInterval()
-  }
+    setActiveIndex(i);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    startInterval();
+  };
 
-  const active = testimonials[activeIndex]
+  if (data.length === 0) return null;
+
+  const active = data[activeIndex] || data[0];
 
   return (
     <section className="relative py-28 px-6 overflow-hidden">
@@ -153,7 +177,7 @@ export default function Testimonials() {
 
         {/* Pagination dots */}
         <div className="flex items-center justify-center gap-3">
-          {testimonials.map((t, i) => (
+          {data.map((t, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}
@@ -161,7 +185,7 @@ export default function Testimonials() {
               style={{
                 width: i === activeIndex ? '28px' : '8px',
                 height: '8px',
-                background: i === activeIndex ? active.avatarColor : 'rgba(99,179,255,0.2)',
+                background: i === activeIndex ? active.avatarColor || '#3b82f6' : 'rgba(99,179,255,0.2)',
               }}
               aria-label={`Go to testimonial ${i + 1}`}
             />
@@ -170,20 +194,20 @@ export default function Testimonials() {
 
         {/* Mini cards row */}
         <div className="hidden md:grid grid-cols-5 gap-3 mt-8">
-          {testimonials.map((t, i) => (
+          {data.map((t, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}
               className="rounded-xl p-3 text-left transition-all duration-200"
               style={{
-                background: i === activeIndex ? `${t.avatarColor}20` : 'var(--surface-container-low)',
-                border: `1px solid ${i === activeIndex ? t.avatarColor + '40' : 'rgba(99,179,255,0.08)'}`,
+                background: i === activeIndex ? `${t.avatarColor || '#3b82f6'}20` : 'var(--surface-container-low)',
+                border: `1px solid ${i === activeIndex ? (t.avatarColor || '#3b82f6') + '40' : 'rgba(99,179,255,0.08)'}`,
               }}
             >
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white"
-                  style={{ background: `${t.avatarColor}30` }}>
-                  {t.avatar[0]}
+                  style={{ background: `${t.avatarColor || '#3b82f6'}30` }}>
+                  {t.avatar ? t.avatar[0] : (t.name ? t.name[0] : 'U')}
                 </div>
                 <span className="text-xs font-medium text-primary-container truncate">{t.name}</span>
               </div>

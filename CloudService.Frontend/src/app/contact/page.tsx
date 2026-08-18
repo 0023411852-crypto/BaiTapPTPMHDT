@@ -5,11 +5,47 @@ import Footer from '../../components/Footer';
 
 export default function ContactOrderPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    phone: '',
+    email: '',
+    service: '',
+    billingCycle: '1',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate API call
-    setIsSubmitted(true);
+    setIsSubmitting(true);
+    
+    try {
+      const payload = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        subject: `Đăng ký dịch vụ: ${formData.service}`,
+        message: `Chu kỳ thanh toán: ${formData.billingCycle} tháng\nYêu cầu thêm: ${formData.message}`
+      };
+
+      const res = await fetch('http://localhost:5154/api/Contacts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        setIsSubmitted(true);
+        setFormData({ fullName: '', phone: '', email: '', service: '', billingCycle: '1', message: '' });
+      } else {
+        alert('Có lỗi xảy ra, vui lòng thử lại sau.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi kết nối.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -80,23 +116,23 @@ export default function ContactOrderPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="block text-sm font-bold text-on-surface-variant">Họ và tên <span className="text-status-error">*</span></label>
-                        <input required type="text" className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none" placeholder="Nhập họ và tên" />
+                        <input required type="text" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none" placeholder="Nhập họ và tên" />
                       </div>
                       <div className="space-y-2">
                         <label className="block text-sm font-bold text-on-surface-variant">Số điện thoại <span className="text-status-error">*</span></label>
-                        <input required type="tel" className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none" placeholder="Nhập số điện thoại" />
+                        <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none" placeholder="Nhập số điện thoại" />
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <label className="block text-sm font-bold text-on-surface-variant">Email liên hệ <span className="text-status-error">*</span></label>
-                      <input required type="email" className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none" placeholder="email@company.com" />
+                      <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none" placeholder="email@company.com" />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="block text-sm font-bold text-on-surface-variant">Chọn Dịch vụ <span className="text-status-error">*</span></label>
-                        <select required className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none appearance-none">
+                        <select required value={formData.service} onChange={e => setFormData({...formData, service: e.target.value})} className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none appearance-none">
                           <option value="">-- Chọn dịch vụ --</option>
                           <option value="vps">Cloud VPS</option>
                           <option value="hosting">Web Hosting</option>
@@ -105,7 +141,7 @@ export default function ContactOrderPage() {
                       </div>
                       <div className="space-y-2">
                         <label className="block text-sm font-bold text-on-surface-variant">Chu kỳ thanh toán <span className="text-status-error">*</span></label>
-                        <select required className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none appearance-none">
+                        <select required value={formData.billingCycle} onChange={e => setFormData({...formData, billingCycle: e.target.value})} className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none appearance-none">
                           <option value="1">1 Tháng</option>
                           <option value="3">3 Tháng (Giảm 5%)</option>
                           <option value="6">6 Tháng (Giảm 10%)</option>
@@ -116,12 +152,12 @@ export default function ContactOrderPage() {
 
                     <div className="space-y-2">
                       <label className="block text-sm font-bold text-on-surface-variant">Yêu cầu thêm (Tùy chọn)</label>
-                      <textarea rows={4} className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none resize-none" placeholder="Ghi chú thêm về cấu hình, hệ điều hành mong muốn..."></textarea>
+                      <textarea rows={4} value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} className="w-full bg-surface-container border border-border-subtle rounded-lg px-4 py-3 text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-all outline-none resize-none" placeholder="Ghi chú thêm về cấu hình, hệ điều hành mong muốn..."></textarea>
                     </div>
 
-                    <button type="submit" className="w-full bg-primary-container hover:bg-primary text-on-primary font-bold text-lg rounded-lg py-4 transition-colors duration-300 shadow-sm flex justify-center items-center gap-2 group">
-                      Gửi Yêu Cầu
-                      <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">send</span>
+                    <button type="submit" disabled={isSubmitting} className="w-full bg-primary-container hover:bg-primary text-on-primary font-bold text-lg rounded-lg py-4 transition-colors duration-300 shadow-sm flex justify-center items-center gap-2 group disabled:opacity-50">
+                      {isSubmitting ? 'Đang Gửi...' : 'Gửi Yêu Cầu'}
+                      {!isSubmitting && <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">send</span>}
                     </button>
                   </form>
                 </div>

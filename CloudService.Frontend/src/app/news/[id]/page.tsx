@@ -6,36 +6,29 @@ import Footer from '../../../components/Footer';
 export default async function NewsDetail({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   
-  // Mock data for the specific post
-  const article = {
-    id: resolvedParams.id,
-    category: 'Cập nhật sản phẩm',
-    categoryColor: '#3b82f6',
-    date: '12 Tháng 8, 2026',
-    title: 'NovaCloud ra mắt Engine tự động mở rộng AI tích hợp dự báo tải',
-    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&h=600&fit=crop&auto=format',
-    content: `
-      <p class="mb-4">Hôm nay, NovaCloud tự hào công bố tính năng mới nhất của nền tảng: <strong>Engine tự động mở rộng bằng AI</strong> (AI-Powered Auto Scaling Engine). Đây là một bước tiến lớn trong việc giúp các doanh nghiệp tối ưu hóa chi phí và đảm bảo hiệu suất website luôn ở mức cao nhất, ngay cả trong những thời điểm lưu lượng truy cập tăng vọt đột biến.</p>
-      
-      <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">Hoạt động như thế nào?</h2>
-      <p class="mb-4">Hệ thống AI của chúng tôi sẽ liên tục theo dõi các chỉ số về lượng truy cập, sử dụng CPU, RAM và băng thông của máy chủ của bạn trong thời gian thực. Bằng cách phân tích dữ liệu lịch sử và các mẫu hình (patterns) truy cập, AI có khả năng dự báo trước thời điểm nào máy chủ của bạn sẽ bị quá tải.</p>
-      
-      <ul class="list-disc pl-6 mb-6 space-y-2 text-gray-700">
-        <li><strong>Tự động mở rộng (Scale Up):</strong> Khi dự báo có lượng tải lớn, hệ thống sẽ tự động thêm tài nguyên (CPU, RAM) vào VPS của bạn ngay lập tức mà không gây gián đoạn (zero-downtime).</li>
-        <li><strong>Tự động thu hẹp (Scale Down):</strong> Khi lượng truy cập giảm xuống, tài nguyên sẽ được tự động trả lại, giúp bạn tiết kiệm chi phí một cách tối đa.</li>
-        <li><strong>Cảnh báo thông minh:</strong> Nhận thông báo qua Email hoặc Telegram mỗi khi hệ thống tự động điều chỉnh.</li>
-      </ul>
+  let article = null;
+  try {
+    const res = await fetch(`http://localhost:5154/api/NewsArticles/${resolvedParams.id}`, { cache: 'no-store' });
+    if (res.ok) {
+      article = await res.json();
+    }
+  } catch (err) {
+    console.error('Failed to fetch article', err);
+  }
 
-      <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">Lợi ích mang lại</h2>
-      <p class="mb-4">Việc áp dụng AI vào Auto Scaling giúp khắc phục hoàn toàn điểm yếu của các hệ thống cũ (chỉ mở rộng khi máy chủ đã bị đầy). Giờ đây, tài nguyên sẽ luôn được chuẩn bị sẵn sàng TRƯỚC KHI khách hàng của bạn ập đến.</p>
-      
-      <div class="bg-blue-50 border border-blue-200 p-6 rounded-xl my-8 italic text-blue-900">
-        "Kể từ khi dùng thử tính năng này trong bản Beta, hệ thống thương mại điện tử của chúng tôi chưa từng bị nghẽn mạng vào các dịp Sale lớn. Đội ngũ NovaCloud đã giải quyết một bài toán rất khó." - CTO một công ty TMĐT.
-      </div>
-      
-      <p class="mb-4">Tính năng này đã được cập nhật cho tất cả các khách hàng đang sử dụng gói Cloud VPS Enterprise trở lên. Hãy đăng nhập vào trang quản trị để trải nghiệm ngay hôm nay!</p>
-    `
-  };
+  if (!article) {
+    return (
+      <>
+        <Navbar />
+        <div className="bg-background pt-24 pb-20 min-h-screen flex items-center justify-center">
+          <p>Không tìm thấy bài viết.</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  const categoryColor = '#3b82f6'; // Có thể implement getCategoryColor tương tự trang list
 
   return (
     <>
@@ -54,7 +47,7 @@ export default async function NewsDetail({ params }: { params: Promise<{ id: str
         <div className="mb-8">
           <span 
             className="inline-block px-3 py-1 rounded-lg text-sm font-semibold mb-4"
-            style={{ background: `${article.categoryColor}15`, color: article.categoryColor, border: `1px solid ${article.categoryColor}40` }}
+            style={{ background: `${categoryColor}15`, color: categoryColor, border: `1px solid ${categoryColor}40` }}
           >
             {article.category}
           </span>
@@ -63,14 +56,16 @@ export default async function NewsDetail({ params }: { params: Promise<{ id: str
             <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            Đăng ngày: {article.date}
+            Đăng ngày: {new Date(article.createdAt).toLocaleDateString('vi-VN')}
           </div>
         </div>
 
         {/* Article Image */}
-        <div className="rounded-2xl overflow-hidden mb-12 border border-gray-200 shadow-sm">
-          <img src={article.image} alt={article.title} className="w-full h-auto object-cover" />
-        </div>
+        {article.thumbnailUrl && (
+          <div className="rounded-2xl overflow-hidden mb-12 border border-gray-200 shadow-sm">
+            <img src={article.thumbnailUrl} alt={article.title} className="w-full h-auto object-cover" />
+          </div>
+        )}
 
         {/* Article Content */}
         <div 

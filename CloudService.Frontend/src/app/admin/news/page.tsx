@@ -1,32 +1,32 @@
 'use client';
 import React, { useState } from 'react';
 
-// Fake Data for UI showcase
-const initialArticles = [
-  {
-    id: '1',
-    title: 'NovaCloud ra mắt Engine tự động mở rộng AI tích hợp dự báo tải',
-    category: 'Cập nhật sản phẩm',
-    date: '12 Tháng 8, 2026',
-    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=340&fit=crop&auto=format',
-    excerpt: 'Giải pháp mới giúp doanh nghiệp tự động scale tài nguyên máy chủ...',
-    content: '<p>Nội dung chi tiết...</p>'
-  },
-  {
-    id: '2',
-    title: 'Các điểm PoP mới tại São Paulo, Lagos, và Jakarta — 183 điểm toàn cầu',
-    category: 'Hạ tầng',
-    date: '8 Tháng 8, 2026',
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=340&fit=crop&auto=format',
-    excerpt: 'Mở rộng hạ tầng mạng toàn cầu, giảm độ trễ và tăng tốc kết nối...',
-    content: '<p>Nội dung chi tiết...</p>'
-  }
-];
+// API integration for News
 
 export default function NewsManager() {
-  const [articles, setArticles] = useState(initialArticles);
+  const [articles, setArticles] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const fetchArticles = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('http://localhost:5154/api/NewsArticles?PageNumber=1&PageSize=100');
+      if (res.ok) {
+        const data = await res.json();
+        setArticles(data.items || []);
+      }
+    } catch (err) {
+      console.error('Error fetching articles', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchArticles();
+  }, []);
 
   const defaultForm = {
     title: '',
@@ -56,28 +56,73 @@ export default function NewsManager() {
     setShowModal(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
-      setArticles(articles.filter(a => a.id !== id));
-      alert('Đã xóa bài viết thành công (Dữ liệu tạm)');
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`http://localhost:5154/api/NewsArticles/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          alert('Đã xóa bài viết thành công');
+          fetchArticles();
+        } else {
+          alert('Xóa bài viết thất bại');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Lỗi kết nối');
+      }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      setArticles(articles.map(a => a.id === editingId ? { ...a, ...form, date: a.date } : a));
-      alert('Đã cập nhật bài viết (Dữ liệu tạm)');
-    } else {
-      const newArticle = {
-        id: Math.random().toString(36).substr(2, 9),
-        ...form,
-        date: new Date().toLocaleDateString('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' })
+    try {
+      const token = localStorage.getItem('token');
+      const payload = {
+        title: form.title,
+        category: form.category,
+        image: form.image,
+        excerpt: form.excerpt,
+        content: form.content,
+        isVisible: true
       };
-      setArticles([newArticle, ...articles]);
-      alert('Đã thêm bài viết mới (Dữ liệu tạm)');
+
+      let res;
+      if (editingId) {
+        res = await fetch(`http://localhost:5154/api/NewsArticles/${editingId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+      } else {
+        res = await fetch('http://localhost:5154/api/NewsArticles', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      if (res.ok) {
+        alert(editingId ? 'Đã cập nhật bài viết' : 'Đã thêm bài viết mới');
+        setShowModal(false);
+        fetchArticles();
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        alert(errorData.message || 'Lưu bài viết thất bại');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi kết nối');
     }
-    setShowModal(false);
   };
 
   return (
@@ -130,7 +175,7 @@ export default function NewsManager() {
                     </span>
                   </td>
                   <td className="py-4 px-4 text-gray-500 text-sm whitespace-nowrap">
-                    {article.date}
+                    {new Date(article.createdAt).toLocaleDateString('vi-VN')}
                   </td>
                   <td className="py-4 px-4 text-right">
                     <div className="flex justify-end gap-2">

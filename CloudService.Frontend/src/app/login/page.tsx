@@ -43,6 +43,9 @@ function LoginContent() {
         throw new Error(data.message || 'Đăng nhập thất bại');
       }
       localStorage.setItem('token', data.token);
+      if (data.refreshToken) {
+        localStorage.setItem('refreshToken', data.refreshToken);
+      }
       if (redirectUrl) {
         router.push(redirectUrl);
       } else {
