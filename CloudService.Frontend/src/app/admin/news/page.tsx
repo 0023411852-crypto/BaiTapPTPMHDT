@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 // API integration for News
 
@@ -8,11 +9,12 @@ export default function NewsManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchArticles = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:5154/api/NewsArticles?PageNumber=1&PageSize=100');
+      const res = await fetch(`${API_BASE_URL}/api/NewsArticles?PageNumber=1&PageSize=100`);
       if (res.ok) {
         const data = await res.json();
         setArticles(data.items || []);
@@ -59,10 +61,8 @@ export default function NewsManager() {
   const handleDelete = async (id: string) => {
     if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
       try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:5154/api/NewsArticles/${id}`, {
+        const res = await fetchWithAuth(`${API_BASE_URL}/api/NewsArticles/${id}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
           alert('Đã xóa bài viết thành công');
@@ -92,20 +92,18 @@ export default function NewsManager() {
 
       let res;
       if (editingId) {
-        res = await fetch(`http://localhost:5154/api/NewsArticles/${editingId}`, {
+        res = await fetchWithAuth(`${API_BASE_URL}/api/NewsArticles/${editingId}`, {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(payload)
         });
       } else {
-        res = await fetch('http://localhost:5154/api/NewsArticles', {
+        res = await fetchWithAuth(`${API_BASE_URL}/api/NewsArticles`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(payload)
         });
@@ -133,12 +131,21 @@ export default function NewsManager() {
           <h2 className="text-3xl md:text-4xl text-gray-900 font-bold tracking-tight mb-2">Quản lý Tin tức</h2>
           <p className="text-gray-500">Đăng tải và quản lý các bài viết trên trang Blog/Tin tức.</p>
         </div>
-        <button 
-          onClick={handleOpenAdd}
-          className="bg-blue-600 hover:bg-blue-700 shadow-sm text-white text-sm font-semibold px-6 py-3 rounded-lg flex items-center gap-2 hover:opacity-90 transition-opacity">
-          <span className="material-symbols-outlined text-[18px]" data-icon="add">add</span>
-          Thêm Bài viết
-        </button>
+        <div className="flex items-center gap-4">
+          <input 
+            type="text" 
+            placeholder="Tìm kiếm bài viết..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-blue-500"
+          />
+          <button 
+            onClick={handleOpenAdd}
+            className="bg-blue-600 hover:bg-blue-700 shadow-sm text-white text-sm font-semibold px-6 py-3 rounded-lg flex items-center gap-2 hover:opacity-90 transition-opacity">
+            <span className="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+            Thêm Bài viết
+          </button>
+        </div>
       </div>
 
       {/* Data Table */}
@@ -155,10 +162,10 @@ export default function NewsManager() {
               </tr>
             </thead>
             <tbody>
-              {articles.length === 0 && (
-                <tr><td colSpan={5} className="text-center py-8 text-gray-500">Chưa có bài viết nào.</td></tr>
+              {articles.filter(a => (a.title || '').toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                <tr><td colSpan={5} className="text-center py-8 text-gray-500">Chưa có bài viết nào phù hợp.</td></tr>
               )}
-              {articles.map(article => (
+              {articles.filter(a => (a.title || '').toLowerCase().includes(searchQuery.toLowerCase())).map(article => (
                 <tr key={article.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors group">
                   <td className="py-4 px-4">
                     <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden border border-gray-200">

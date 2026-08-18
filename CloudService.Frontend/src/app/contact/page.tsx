@@ -28,7 +28,7 @@ export default function ContactOrderPage() {
         message: `Chu kỳ thanh toán: ${formData.billingCycle} tháng\nYêu cầu thêm: ${formData.message}`
       };
 
-      const res = await fetch('http://localhost:5154/api/Contacts', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Contacts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

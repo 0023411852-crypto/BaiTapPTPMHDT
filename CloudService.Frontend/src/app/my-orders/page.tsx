@@ -28,7 +28,7 @@ export default function MyOrdersPage() {
           return;
         }
 
-        const res = await fetch('http://localhost:5154/api/Orders/my-orders?PageNumber=1&PageSize=10', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Orders/my-orders?PageNumber=1&PageSize=10`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

@@ -45,7 +45,7 @@ export default function Navbar() {
       const demoRole = localStorage.getItem('demo_role');
       if (token) {
         try {
-          const res = await fetch('http://localhost:5154/api/Users/me', {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (res.ok) {
@@ -83,7 +83,7 @@ export default function Navbar() {
       const token = localStorage.getItem('token');
       const refreshToken = localStorage.getItem('refreshToken');
       if (token && refreshToken) {
-        await fetch('http://localhost:5154/api/Auth/logout', {
+        await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Auth/logout`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, refreshToken })

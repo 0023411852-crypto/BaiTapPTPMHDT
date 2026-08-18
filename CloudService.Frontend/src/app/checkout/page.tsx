@@ -40,7 +40,7 @@ function CheckoutContent() {
     // 2. Fetch plan details
     const fetchPlan = async () => {
       try {
-        const res = await fetch(`http://localhost:5154/api/ServicePlans`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans`);
         const data = await res.json();
         if (res.ok && data.data) {
           const selectedPlan = data.data.find((p: any) => p.id === Number(planId));
@@ -86,7 +86,7 @@ function CheckoutContent() {
         CustomerNotes: notes
       };
 
-      const res = await fetch('http://localhost:5154/api/Orders', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

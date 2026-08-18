@@ -15,7 +15,7 @@ export default function UserManager() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5154/api/Users?PageNumber=1&PageSize=50', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users?PageNumber=1&PageSize=50`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -36,7 +36,7 @@ export default function UserManager() {
   const handleUpdateStatus = async (userId: string, currentIsActive: boolean) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5154/api/Users/${userId}/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users/${userId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export default function UserManager() {
     setIsAdding(true);
     try {
       // Gọi API đăng ký (Auth/register)
-      const res = await fetch('http://localhost:5154/api/Auth/register', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullName: newUser.fullName, email: newUser.email, password: newUser.password })

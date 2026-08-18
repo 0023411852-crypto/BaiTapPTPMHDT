@@ -1,3 +1,5 @@
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154';
+
 export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   let token = localStorage.getItem('token');
   const headers = {
@@ -11,7 +13,8 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
       try {
-        const refreshRes = await fetch('http://localhost:5154/api/Auth/refresh', {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}`;
+        const refreshRes = await fetch(`${API_BASE_URL}/api/Auth/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, refreshToken }),

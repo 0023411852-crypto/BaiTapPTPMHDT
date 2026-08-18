@@ -8,7 +8,7 @@ export default async function NewsDetail({ params }: { params: Promise<{ id: str
   
   let article = null;
   try {
-    const res = await fetch(`http://localhost:5154/api/NewsArticles/${resolvedParams.id}`, { cache: 'no-store' });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/NewsArticles/${resolvedParams.id}`, { cache: 'no-store' });
     if (res.ok) {
       article = await res.json();
     }

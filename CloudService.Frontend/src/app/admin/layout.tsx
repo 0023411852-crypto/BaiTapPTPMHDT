@@ -12,11 +12,18 @@ export default function AdminLayout({
   const [role, setRole] = useState<'Admin' | 'Editor'>('Admin');
   const pathname = usePathname();
 
-  // Load role from localStorage on mount (optional integration with login)
   useEffect(() => {
-    const savedRole = localStorage.getItem('demo_role');
-    if (savedRole === 'Editor' || savedRole === 'Admin') {
-      setRole(savedRole);
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const userRole = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || payload.role || 'Admin';
+        if (userRole === 'Editor' || userRole === 'Admin') {
+          setRole(userRole as any);
+        }
+      } catch(e) {
+        console.error('Invalid token', e);
+      }
     }
   }, []);
 
@@ -73,8 +80,8 @@ export default function AdminLayout({
             <button 
               onClick={() => {
                 localStorage.removeItem('token');
-                localStorage.removeItem('demo_role');
-                window.location.href = '/';
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/login';
               }}
               className="flex items-center w-full gap-3 px-4 py-2 text-red-400 hover:bg-red-500/10 transition-colors duration-200 rounded-lg text-sm font-bold"
             >

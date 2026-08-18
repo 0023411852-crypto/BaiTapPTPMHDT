@@ -63,7 +63,7 @@ export default function Testimonials() {
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const res = await fetch('http://localhost:5154/api/Testimonials?onlyVisible=true');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Testimonials?onlyVisible=true`);
         if (res.ok) {
           const result = await res.json();
           if (result.data && result.data.length > 0) {

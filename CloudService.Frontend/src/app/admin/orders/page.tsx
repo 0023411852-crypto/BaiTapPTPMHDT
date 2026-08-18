@@ -1,18 +1,17 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 export default function OrderManager() {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5154/api/Orders/all?PageNumber=1&PageSize=50', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Orders/all?PageNumber=1&PageSize=50`);
       if (res.ok) {
         const data = await res.json();
         setOrders(data.data || []);
@@ -34,12 +33,10 @@ export default function OrderManager() {
   const handleUpdateStatus = async (status: string) => {
     if (!selectedOrder) return;
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5154/api/Orders/${selectedOrder.id}/status`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Orders/${selectedOrder.id}/status`, {
         method: 'PATCH',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(status)
       });
@@ -58,10 +55,7 @@ export default function OrderManager() {
 
   const handleExportOrders = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5154/api/Orders/export', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Orders/export`);
       
       if (res.ok) {
         const blob = await res.blob();
@@ -113,7 +107,14 @@ export default function OrderManager() {
 
       {/* Filter Bar */}
       <section className="mb-6 flex items-center justify-between bg-white backdrop-blur-md p-2 rounded-xl border border-gray-200 shrink-0">
-        <div className="flex gap-2">
+        <div className="flex gap-4 w-full">
+          <input 
+            type="text" 
+            placeholder="Tìm theo mã đơn hoặc gói dịch vụ..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-blue-500"
+          />
           <button className="px-4 py-2 rounded-lg bg-purple-500/20 text-blue-600 text-xs font-semibold border border-blue-500">Tất cả</button>
         </div>
       </section>
@@ -135,7 +136,9 @@ export default function OrderManager() {
           ) : orders.length === 0 ? (
             <div className="p-8 text-center text-gray-500">Không có đơn hàng nào</div>
           ) : (
-            orders.map(order => (
+            orders
+              .filter(o => (o.id || '').toLowerCase().includes(searchQuery.toLowerCase()) || (o.servicePlanName || '').toLowerCase().includes(searchQuery.toLowerCase()))
+              .map(order => (
               <div 
                 key={order.id}
                 onClick={() => openDrawer(order)}

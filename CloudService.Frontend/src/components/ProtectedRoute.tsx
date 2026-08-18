@@ -38,12 +38,20 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
         return;
       }
 
-      let userRole = demoRole || 'Customer';
+      let userRole = 'Customer';
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          userRole = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || payload.role || 'Customer';
+        } catch (e) {
+          console.error("Lỗi xác thực:", e);
+        }
+      }
 
       // 2. Nếu có token, fetch API để lấy role (Nếu cần thiết, có thể bỏ qua nếu decode trực tiếp JWT)
       if (token) {
         try {
-          const res = await fetch('http://localhost:5154/api/Users/me', {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (res.ok) {

@@ -52,7 +52,7 @@ export default function PromotionsManager() {
     if (!confirm('Bạn có chắc chắn muốn xóa khuyến mãi này?')) return;
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5154/api/Promotions/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Promotions/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -67,7 +67,7 @@ export default function PromotionsManager() {
   const fetchPromotions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5154/api/Promotions', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Promotions`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Không thể tải danh sách Khuyến mãi.');
@@ -81,7 +81,7 @@ export default function PromotionsManager() {
 
   const fetchServicePlans = async () => {
     try {
-      const res = await fetch('http://localhost:5154/api/ServicePlans');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans`);
       if (res.ok) {
         const data = await res.json();
         setServicePlans(data.data || []);
@@ -145,8 +145,8 @@ export default function PromotionsManager() {
       };
 
       const url = editingId 
-        ? `http://localhost:5154/api/Promotions/${editingId}`
-        : 'http://localhost:5154/api/Promotions';
+        ? `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Promotions/${editingId}`
+        : `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Promotions`;
         
       const res = await fetch(url, {
         method: editingId ? 'PUT' : 'POST',

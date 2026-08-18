@@ -9,7 +9,7 @@ export default function AffiliateManager() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5154/api/AffiliateApplications?PageNumber=1&PageSize=50', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/AffiliateApplications?PageNumber=1&PageSize=50`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -31,7 +31,7 @@ export default function AffiliateManager() {
     try {
       const token = localStorage.getItem('token');
       const statusInt = status === 'Approved' ? 1 : status === 'Rejected' ? 2 : 0;
-      const res = await fetch(`http://localhost:5154/api/AffiliateApplications/${id}/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/AffiliateApplications/${id}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

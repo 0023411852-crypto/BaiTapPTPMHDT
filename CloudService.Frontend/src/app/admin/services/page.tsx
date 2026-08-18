@@ -46,8 +46,8 @@ export default function ServiceManager() {
       };
 
       const [catRes, planRes] = await Promise.all([
-        fetch('http://localhost:5154/api/ServiceCategories?PageNumber=1&PageSize=50', { headers }),
-        fetch('http://localhost:5154/api/ServicePlans?PageNumber=1&PageSize=50', { headers })
+        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServiceCategories?PageNumber=1&PageSize=50`, { headers }),
+        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans?PageNumber=1&PageSize=50`, { headers })
       ]);
 
       if (catRes.ok) {
@@ -88,8 +88,8 @@ export default function ServiceManager() {
       });
 
         const url = editingPlanId 
-          ? `http://localhost:5154/api/ServicePlans/${editingPlanId}`
-          : 'http://localhost:5154/api/ServicePlans';
+          ? `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans/${editingPlanId}`
+          : `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans`;
         
         const method = editingPlanId ? 'PUT' : 'POST';
 
@@ -127,7 +127,7 @@ export default function ServiceManager() {
     if(!confirm('Bạn có chắc chắn muốn xóa gói dịch vụ này?')) return;
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5154/api/ServicePlans/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -174,8 +174,8 @@ export default function ServiceManager() {
     try {
       const token = localStorage.getItem('token');
       const url = editingCatId 
-        ? `http://localhost:5154/api/ServiceCategories/${editingCatId}`
-        : 'http://localhost:5154/api/ServiceCategories';
+        ? `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServiceCategories/${editingCatId}`
+        : `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServiceCategories`;
       const method = editingCatId ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -208,7 +208,7 @@ export default function ServiceManager() {
     if(!confirm('Bạn có chắc chắn muốn xóa danh mục này?')) return;
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5154/api/ServiceCategories/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServiceCategories/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -316,7 +316,7 @@ export default function ServiceManager() {
                       </div>
                     </td>
                     <td className="py-4 px-4 text-right flex justify-end gap-2">
-                      <button className="text-gray-500 hover:text-purple-600 transition-colors p-1 bg-gray-50 rounded-md border border-gray-200" title="Sinh mã QR" onClick={() => { if(plan.qrCodeBase64) window.open(plan.qrCodeBase64, '_blank'); else alert('Gói này chưa có mã QR'); }}>
+                      <button className="text-gray-500 hover:text-purple-600 transition-colors p-1 bg-gray-50 rounded-md border border-gray-200" title="Xem mã QR (Tính năng Sinh mới chưa có API)" onClick={() => { if(plan.qrCodeBase64) { const win = window.open(); if(win) win.document.write(`<img src="${plan.qrCodeBase64}"/>`); } else alert('Gói này chưa có mã QR và API sinh mã đang thiếu.'); }}>
                         <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
                       </button>
                       <button className="text-gray-500 hover:text-blue-600 transition-colors p-1 bg-gray-50 rounded-md border border-gray-200" title="Sửa" onClick={() => handleEditPlan(plan)}>

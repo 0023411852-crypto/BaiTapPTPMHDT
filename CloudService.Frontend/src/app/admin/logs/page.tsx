@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 interface AuditLogDto {
   id: string;
@@ -18,18 +19,14 @@ export default function LogsManager() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
   const pageSize = 15;
 
   useEffect(() => {
     const fetchLogs = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:5154/api/AuditLogs?PageNumber=${page}&PageSize=${pageSize}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const res = await fetchWithAuth(`${API_BASE_URL}/api/AuditLogs?PageNumber=${page}&PageSize=${pageSize}`);
         if (res.ok) {
           const data = await res.json();
           setLogs(data.items || []);
@@ -76,6 +73,8 @@ export default function LogsManager() {
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">search</span>
             <input 
               type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-purple-500 focus:outline-none transition-shadow placeholder-slate-400" 
               placeholder="Tìm kiếm theo ID, Resource hoặc User..." 
             />
@@ -107,7 +106,12 @@ export default function LogsManager() {
                 Không có bản ghi nhật ký nào.
               </div>
             ) : (
-              logs.map((log) => {
+              logs.filter(l => 
+                (l.userId || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                (l.userFullName || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                (l.entityName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (l.action || '').toLowerCase().includes(searchQuery.toLowerCase())
+              ).map((log) => {
                 const dateObj = new Date(log.timestamp);
                 const dateStr = `${dateObj.toLocaleDateString('vi-VN')} ${dateObj.toLocaleTimeString('vi-VN')}`;
                 

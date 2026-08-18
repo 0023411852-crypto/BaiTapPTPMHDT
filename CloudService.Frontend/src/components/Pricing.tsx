@@ -16,7 +16,7 @@ export default function Pricing() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await fetch('http://localhost:5154/api/ServicePlans?PageNumber=1&PageSize=10', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans?PageNumber=1&PageSize=10`, {
           signal: AbortSignal.timeout(5000)
         });
         const data = await res.json();

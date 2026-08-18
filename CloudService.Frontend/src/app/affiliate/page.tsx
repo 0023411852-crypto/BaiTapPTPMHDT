@@ -19,7 +19,7 @@ export default function AffiliateRegistrationPage() {
         return;
       }
       try {
-        const res = await fetch('http://localhost:5154/api/AffiliateApplications/my-application', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/AffiliateApplications/my-application`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
@@ -42,7 +42,7 @@ export default function AffiliateRegistrationPage() {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5154/api/AffiliateApplications', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/AffiliateApplications`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

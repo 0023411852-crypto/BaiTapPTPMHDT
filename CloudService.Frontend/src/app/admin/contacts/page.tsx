@@ -20,7 +20,7 @@ export default function ContactsManager() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5154/api/Contacts`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Contacts`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -45,7 +45,7 @@ export default function ContactsManager() {
   const openDrawer = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5154/api/Contacts/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Contacts/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -66,7 +66,7 @@ export default function ContactsManager() {
   const handleMarkAsRead = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5154/api/Contacts/${id}/mark-as-read`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Contacts/${id}/mark-as-read`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -88,7 +88,7 @@ export default function ContactsManager() {
     if (!confirm('Bạn có chắc chắn muốn xóa liên hệ này?')) return;
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5154/api/Contacts/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Contacts/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

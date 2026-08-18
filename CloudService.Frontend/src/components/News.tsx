@@ -33,7 +33,7 @@ export default function News() {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch('http://localhost:5154/api/NewsArticles?PageNumber=1&PageSize=3&onlyPublished=true');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/NewsArticles?PageNumber=1&PageSize=3&onlyPublished=true`);
         if (res.ok) {
           const data = await res.json();
           setArticles(data.items || []);

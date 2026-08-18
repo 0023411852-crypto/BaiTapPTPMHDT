@@ -30,7 +30,7 @@ export default function ProfilePage() {
           return;
         }
 
-        const res = await fetch('http://localhost:5154/api/Users/me', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -71,7 +71,7 @@ export default function ProfilePage() {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5154/api/Users/me/profile', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users/me/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export default function ProfilePage() {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5154/api/Users/me/password', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users/me/password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

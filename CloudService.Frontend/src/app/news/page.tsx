@@ -33,19 +33,23 @@ export default function NewsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filterCategory, setFilterCategory] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const pageSize = 6;
 
   useEffect(() => {
     const fetchArticles = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:5154/api/NewsArticles?PageNumber=${page}&PageSize=${pageSize}&onlyPublished=true`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/NewsArticles?PageNumber=${page}&PageSize=${pageSize}&onlyPublished=true`);
         if (res.ok) {
           const data = await res.json();
           // Lọc dữ liệu client-side nếu API không hỗ trợ query string Category
           let fetchedItems = data.items || [];
           if (filterCategory) {
             fetchedItems = fetchedItems.filter((a: NewsArticleDto) => (a.category || '').toLowerCase().includes(filterCategory.toLowerCase()));
+          }
+          if (searchQuery) {
+            fetchedItems = fetchedItems.filter((a: NewsArticleDto) => (a.title || '').toLowerCase().includes(searchQuery.toLowerCase()) || (a.content || '').toLowerCase().includes(searchQuery.toLowerCase()));
           }
           setArticles(fetchedItems);
           setTotalPages(data.totalPages || 1);
@@ -58,7 +62,7 @@ export default function NewsPage() {
     };
     
     fetchArticles();
-  }, [page, filterCategory]);
+  }, [page, filterCategory, searchQuery]);
 
   return (
     <>
@@ -76,6 +80,8 @@ export default function NewsPage() {
           <input 
             type="text" 
             placeholder="Tìm kiếm bài viết..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-white border border-gray-300 rounded-xl py-3 px-4 pl-12 text-gray-900 focus:outline-none focus:border-blue-500 transition-colors shadow-sm"
           />
           <svg className="w-5 h-5 text-gray-400 absolute left-4 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

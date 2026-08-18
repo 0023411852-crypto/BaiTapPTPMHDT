@@ -9,7 +9,8 @@ export default function AdminDashboard() {
       const token = localStorage.getItem('token');
       if (!token) return;
       try {
-        const res = await fetch('http://localhost:5154/api/Statistics/dashboard', {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}`;
+        const res = await fetch(`${API_BASE_URL}/api/Statistics/dashboard`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
@@ -40,10 +41,10 @@ export default function AdminDashboard() {
           </nav>
           <h2 className="text-2xl font-bold text-gray-900">Tổng quan hệ thống</h2>
         </div>
-        <div className="flex items-center bg-white border border-gray-200 rounded-lg p-1">
-          <button className="px-4 py-1.5 text-sm font-medium rounded-md bg-purple-500/20 text-purple-300">7 ngày qua</button>
-          <button className="px-4 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-colors">30 ngày</button>
-          <button className="px-4 py-1.5 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-colors">Tháng này</button>
+        <div className="flex items-center bg-white border border-gray-200 rounded-lg p-1" title="API chưa hỗ trợ lọc theo thời gian">
+          <button disabled className="px-4 py-1.5 text-sm font-medium rounded-md bg-purple-500/20 text-purple-300 opacity-50 cursor-not-allowed">7 ngày qua</button>
+          <button disabled className="px-4 py-1.5 text-sm font-medium rounded-md text-gray-400 opacity-50 cursor-not-allowed">30 ngày</button>
+          <button disabled className="px-4 py-1.5 text-sm font-medium rounded-md text-gray-400 opacity-50 cursor-not-allowed">Tháng này</button>
         </div>
       </div>
 
@@ -139,11 +140,27 @@ export default function AdminDashboard() {
               <span className="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
             </button>
           </div>
-          <div className="flex-1 relative min-h-[300px] w-full rounded-lg bg-white overflow-hidden">
-            <div 
-              className="w-full h-full bg-cover bg-center opacity-80 mix-blend-screen" 
-              style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBKuUMoNWdNJbNN08kiDCdF7NhBYL9FadIq2JjsSIrnkiE_b_VJ_uV2YF7c8pI88DKy69silphXK7O-ues9yyZ8VGnv7Ue9B80melt_W6FpTemOkWrcv7GcnHPcsq9wvVErWyr47i7PunNR7PMwURezM4RLJqHEEz62kXKQfS_2jd6RUpar2CUn9oJWKtUxZoEEcs6mDMRXKiShQUx7XgvCvpi7nq-0c027TWGH3QwIVPBjprponwpTYw')"}}>
-            </div>
+          <div className="flex-1 relative min-h-[300px] w-full rounded-lg bg-white overflow-hidden p-4 flex items-end gap-2">
+            {stats?.monthlyOrders?.length > 0 ? stats.monthlyOrders.map((item: any, i: number) => {
+              const maxVal = Math.max(...stats.monthlyOrders.map((x: any) => x.value || 0), 1);
+              const heightPct = Math.max(((item.value || 0) / maxVal) * 100, 5);
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center justify-end h-full group relative">
+                  <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded whitespace-nowrap z-10">
+                    {item.value || 0} đơn
+                  </div>
+                  <div 
+                    className="w-full bg-indigo-500 rounded-t-sm transition-all duration-300 hover:bg-indigo-400" 
+                    style={{ height: `${heightPct}%` }}
+                  ></div>
+                  <span className="text-xs text-gray-500 mt-2 truncate w-full text-center">{item.month}</span>
+                </div>
+              );
+            }) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                Chưa có dữ liệu thống kê
+              </div>
+            )}
           </div>
         </div>
 
