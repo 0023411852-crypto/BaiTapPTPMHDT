@@ -188,7 +188,7 @@ export default function AdminDashboard() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-gray-200 bg-white text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <th className="py-4 px-6 font-medium">Khách hàng</th>
+                <th className="py-4 px-6 font-medium">Đơn hàng</th>
                 <th className="py-4 px-6 font-medium">Gói dịch vụ</th>
                 <th className="py-4 px-6 font-medium">Số tiền</th>
                 <th className="py-4 px-6 font-medium">Trạng thái</th>
@@ -196,69 +196,36 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="text-sm divide-y divide-[rgba(167,139,250,0.15)]">
-              <tr className="hover:bg-gray-50 transition-colors group">
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full overflow-hidden bg-[#2a2456] flex-shrink-0">
-                      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0fp0wH7N3hy_k6tzGyNhcUXedw0tLirgwHcENMzQWq7FptSeLIElgVIzjHCTs1Wp9iaWZmDeTMbAAYmQKe0Mch3dinLpQQF6F8fINzlgyRCFezewNe0cVZ2pbCIfBnIqEF2mFikoTyeXxOCiV9ktkSpfQGl-1qK292P8x7M87Zq2eJ6xzcYAr-A3D0JmiLyQ2Aqrc349LOtvrvnUDQ_jdxQrd7B3acwFExkZ86FGpYMrrzlyjN6lEyw" alt="User Avatar" className="w-full h-full object-cover" />
+              {stats?.recentOrders?.slice(0, 4).map((order: any) => (
+                <tr key={order.id} className="hover:bg-gray-50 transition-colors group">
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full overflow-hidden bg-[#2a2456] flex-shrink-0 flex items-center justify-center font-bold text-blue-600">
+                        {order.userName ? order.userName.charAt(0).toUpperCase() : 'C'}
+                      </div>
+                      <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">{order.userName || 'Client'}</span>
                     </div>
-                    <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">Công ty TNHH ABC</span>
-                  </div>
-                </td>
-                <td className="py-4 px-6 text-gray-500">Nova Pro 12T</td>
-                <td className="py-4 px-6 font-medium text-gray-900">12.500.000₫</td>
-                <td className="py-4 px-6">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">Hoàn tất</span>
-                </td>
-                <td className="py-4 px-6 text-gray-500 text-xs font-mono">10/10/2023</td>
-              </tr>
-              <tr className="hover:bg-gray-50 transition-colors group">
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full overflow-hidden bg-[#2a2456] flex-shrink-0 flex items-center justify-center font-bold text-blue-600">NT</div>
-                    <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">Nguyễn Văn Tech</span>
-                  </div>
-                </td>
-                <td className="py-4 px-6 text-gray-500">Compute C2</td>
-                <td className="py-4 px-6 font-medium text-gray-900">4.200.000₫</td>
-                <td className="py-4 px-6">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 gap-1">
-                    <span className="material-symbols-outlined text-[12px]" data-icon="sync">sync</span>
-                    Đang xử lý
-                  </span>
-                </td>
-                <td className="py-4 px-6 text-gray-500 text-xs font-mono">09/10/2023</td>
-              </tr>
-              <tr className="hover:bg-gray-50 transition-colors group">
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full overflow-hidden bg-[#2a2456] flex-shrink-0">
-                      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcFQYBXjDZHthTyXcQJM2HoM63XB_erpG9WZ02nlon4YF8Fqhs0soRw46RWXZ9yEwy2kORQgCmsXe62VxgEmzeMQeNkNYKROrZmXaVmK0eE4l021culmy5CtjOH-s-saSgTYywZNH-wlO-zWJt2Ff5-jfNpcnZyeUJMYrPiuHgL1TorYr7iTF7qRCkL_vr2fiwvCTnTjFoDthYlyOZep75G0diCP1ZSOHsuTFkRq3njQuiEIGyOxlvyg" alt="User Avatar" className="w-full h-full object-cover" />
-                    </div>
-                    <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">Global Solutions JSC</span>
-                  </div>
-                </td>
-                <td className="py-4 px-6 text-gray-500">Storage S3 1TB</td>
-                <td className="py-4 px-6 font-medium text-gray-900">1.800.000₫</td>
-                <td className="py-4 px-6">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">Hoàn tất</span>
-                </td>
-                <td className="py-4 px-6 text-gray-500 text-xs font-mono">09/10/2023</td>
-              </tr>
-              <tr className="hover:bg-gray-50 transition-colors group">
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full overflow-hidden bg-[#2a2456] flex-shrink-0 flex items-center justify-center font-bold text-fuchsia-400">MK</div>
-                    <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">Trần Minh Khang</span>
-                  </div>
-                </td>
-                <td className="py-4 px-6 text-gray-500">Nova Pro 1T</td>
-                <td className="py-4 px-6 font-medium text-gray-900">1.200.000₫</td>
-                <td className="py-4 px-6">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-500 border border-red-500/20">Đã hủy</span>
-                </td>
-                <td className="py-4 px-6 text-gray-500 text-xs font-mono">08/10/2023</td>
-              </tr>
+                  </td>
+                  <td className="py-4 px-6 text-gray-500">{order.servicePlanName || 'Gói Dịch vụ'}</td>
+                  <td className="py-4 px-6 font-medium text-gray-900">{(order.totalAmount || 0).toLocaleString()}₫</td>
+                  <td className="py-4 px-6">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                      order.status?.toLowerCase() === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
+                      order.status?.toLowerCase() === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 
+                      order.status?.toLowerCase() === 'cancelled' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 
+                      'bg-gray-500/10 text-gray-500 border-gray-500/20'
+                    }`}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6 text-gray-500 text-xs font-mono">{new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
+                </tr>
+              ))}
+              {(!stats?.recentOrders || stats.recentOrders.length === 0) && (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-gray-500">Chưa có đơn hàng nào gần đây</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

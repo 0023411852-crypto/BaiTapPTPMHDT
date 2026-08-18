@@ -30,13 +30,14 @@ export default function AffiliateManager() {
   const handleUpdateStatus = async (id: string, status: string) => {
     try {
       const token = localStorage.getItem('token');
+      const statusInt = status === 'Approved' ? 1 : status === 'Rejected' ? 2 : 0;
       const res = await fetch(`http://localhost:5154/api/AffiliateApplications/${id}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(status)
+        body: JSON.stringify({ status: statusInt })
       });
       if (res.ok) {
         alert(`Đã cập nhật trạng thái thành ${status}`);
