@@ -21,6 +21,7 @@ export default function ServiceManager() {
     cpuCores: 2,
     ramGB: 4,
     storageGB: 50,
+    bandwidth: '100 Mbps',
     prices: [
       { months: 1, basePrice: 0, discountPercentage: 0 },
       { months: 3, basePrice: 0, discountPercentage: 0 },
@@ -79,7 +80,8 @@ export default function ServiceManager() {
       const specifications = JSON.stringify({
         cpuCores: Number(planForm.cpuCores),
         ramGB: Number(planForm.ramGB),
-        storageGB: Number(planForm.storageGB)
+        storageGB: Number(planForm.storageGB),
+        bandwidth: planForm.bandwidth || ''
       });
 
         const url = editingPlanId 
@@ -132,16 +134,16 @@ export default function ServiceManager() {
   const handleEditPlan = (plan: any) => {
     setEditingPlanId(plan.id);
     setActiveTab('plans');
-    let specs = { cpuCores: 2, ramGB: 4, storageGB: 50 };
+    let specs = { cpuCores: 2, ramGB: 4, storageGB: 50, bandwidth: '100 Mbps' };
     try { if(plan.specifications) specs = JSON.parse(plan.specifications); } catch(e){}
-    
+
     // Merge existing prices
     const mergedPrices = [...defaultPlanForm.prices];
     if (plan.prices && Array.isArray(plan.prices)) {
       plan.prices.forEach((p: any) => {
         const idx = mergedPrices.findIndex(mp => mp.months === p.billingCycle);
         if (idx !== -1) {
-          // Note: In reality we should calculate discountPercentage backwards or load from backend. 
+          // Note: In reality we should calculate discountPercentage backwards or load from backend.
           // For simplicity we set basePrice = price, discount = 0
           mergedPrices[idx] = { months: p.billingCycle, basePrice: p.price, discountPercentage: 0 };
         }
@@ -155,6 +157,7 @@ export default function ServiceManager() {
       cpuCores: specs.cpuCores,
       ramGB: specs.ramGB,
       storageGB: specs.storageGB,
+      bandwidth: specs.bandwidth || '100 Mbps',
       prices: mergedPrices
     });
     setShowModal(true);
@@ -392,6 +395,10 @@ export default function ServiceManager() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Storage (GB)</label>
                     <input type="number" required value={planForm.storageGB} onChange={e => setPlanForm({...planForm, storageGB: Number(e.target.value)})} className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:border-blue-500" />
                   </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Băng thông</label>
+                  <input type="text" required value={planForm.bandwidth} onChange={e => setPlanForm({...planForm, bandwidth: e.target.value})} className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:border-blue-500" placeholder="Ví dụ: 100 Mbps, 1 Gbps" />
                 </div>
                 
                 <div className="mt-4 border-t border-gray-200 pt-4">

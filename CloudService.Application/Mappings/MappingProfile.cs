@@ -47,8 +47,10 @@ namespace CloudService.Application.Mappings
             CreateMap<Contact, CloudService.Application.DTOs.Contacts.ContactDto>();
             CreateMap<CloudService.Application.DTOs.Contacts.CreateContactDto, Contact>();
 
-            CreateMap<Testimonial, CloudService.Application.DTOs.Testimonials.TestimonialDto>();
-            CreateMap<CloudService.Application.DTOs.Testimonials.CreateTestimonialDto, Testimonial>();
+            CreateMap<Testimonial, CloudService.Application.DTOs.Testimonials.TestimonialDto>()
+                .ForMember(dest => dest.Company, opt => opt.MapFrom(src => src.CompanyName));
+            CreateMap<CloudService.Application.DTOs.Testimonials.CreateTestimonialDto, Testimonial>()
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company));
 
             CreateMap<AppUser, UserDto>();
         }

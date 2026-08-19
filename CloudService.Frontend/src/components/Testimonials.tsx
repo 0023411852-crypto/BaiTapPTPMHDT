@@ -106,42 +106,50 @@ export default function Testimonials() {
           style={{
             background: 'var(--surface-container-low)',
             backdropFilter: 'blur(20px)',
-            border: `1px solid ${active.avatarColor}30`,
-            boxShadow: `0 0 60px ${active.avatarColor}10, 0 20px 60px rgba(0,0,0,0.4)`,
+            border: '1px solid rgba(59,130,246,0.3)',
+            boxShadow: '0 0 60px rgba(59,130,246,0.1), 0 20px 60px rgba(0,0,0,0.4)',
           }}
         >
           {/* Quote icon */}
-          <div className="mb-6 opacity-30" style={{ color: active.avatarColor }}>
+          <div className="mb-6 opacity-30" style={{ color: '#3b82f6' }}>
             <svg width="48" height="36" viewBox="0 0 48 36" fill="currentColor">
               <path d="M0 36V22.8C0 10.2 7.2 2.4 21.6 0l2.4 4.8C16.8 6.4 13.2 10 12 16h10.8V36H0Zm25.2 0V22.8C25.2 10.2 32.4 2.4 46.8 0l1.2 4.8C41 6.4 37.4 10 36 16h10.8V36H25.2Z"/>
             </svg>
           </div>
 
           <p className="text-xl md:text-2xl text-on-surface leading-relaxed font-light mb-8">
-            "{active.quote}"
+            "{active.content}"
           </p>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               {/* Avatar */}
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                style={{ background: `${active.avatarColor}30`, border: `2px solid ${active.avatarColor}50` }}
-              >
-                {active.avatar}
-              </div>
+              {active.avatarUrl ? (
+                <img
+                  src={active.avatarUrl}
+                  alt={active.customerName}
+                  className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                />
+              ) : (
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+                  style={{ background: '#3b82f6', border: '2px solid rgba(59,130,246,0.5)' }}
+                >
+                  {active.customerName ? active.customerName.charAt(0).toUpperCase() : 'U'}
+                </div>
+              )}
               <div>
-                <div className="font-semibold text-primary-container">{active.name}</div>
-                <div className="text-sm text-on-surface-variant">{active.role} · {active.company}</div>
+                <div className="font-semibold text-primary-container">{active.customerName}</div>
+                <div className="text-sm text-on-surface-variant">{active.position} · {active.company}</div>
               </div>
             </div>
 
-            {/* Metric badge */}
+            {/* Rating badge */}
             <div
               className="px-4 py-2 rounded-xl text-xs font-mono"
-              style={{ background: `${active.avatarColor}15`, color: active.avatarColor, border: `1px solid ${active.avatarColor}30` }}
+              style={{ background: 'rgba(59,130,246,0.15)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.3)' }}
             >
-              {active.metric}
+              {active.rating}/5
             </div>
           </div>
 
@@ -165,7 +173,7 @@ export default function Testimonials() {
               style={{
                 width: i === activeIndex ? '28px' : '8px',
                 height: '8px',
-                background: i === activeIndex ? active.avatarColor || '#3b82f6' : 'rgba(99,179,255,0.2)',
+                background: i === activeIndex ? '#3b82f6' : 'rgba(59,130,246,0.2)',
               }}
               aria-label={`Go to testimonial ${i + 1}`}
             />
@@ -180,16 +188,24 @@ export default function Testimonials() {
               onClick={() => goTo(i)}
               className="rounded-xl p-3 text-left transition-all duration-200"
               style={{
-                background: i === activeIndex ? `${t.avatarColor || '#3b82f6'}20` : 'var(--surface-container-low)',
-                border: `1px solid ${i === activeIndex ? (t.avatarColor || '#3b82f6') + '40' : 'rgba(99,179,255,0.08)'}`,
+                background: i === activeIndex ? 'rgba(59,130,246,0.2)' : 'var(--surface-container-low)',
+                border: `1px solid ${i === activeIndex ? 'rgba(59,130,246,0.4)' : 'rgba(59,130,246,0.08)'}`,
               }}
             >
               <div className="flex items-center gap-2 mb-1.5">
-                <div className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white"
-                  style={{ background: `${t.avatarColor || '#3b82f6'}30` }}>
-                  {t.avatar ? t.avatar[0] : (t.name ? t.name[0] : 'U')}
-                </div>
-                <span className="text-xs font-medium text-primary-container truncate">{t.name}</span>
+                {t.avatarUrl ? (
+                  <img
+                    src={t.avatarUrl}
+                    alt={t.customerName}
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white"
+                    style={{ background: 'rgba(59,130,246,0.3)' }}>
+                    {t.customerName ? t.customerName.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                )}
+                <span className="text-xs font-medium text-primary-container truncate">{t.customerName}</span>
               </div>
               <div className="text-xs text-on-surface-variant truncate">{t.company}</div>
             </button>

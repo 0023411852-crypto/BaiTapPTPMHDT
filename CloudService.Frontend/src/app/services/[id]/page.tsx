@@ -120,6 +120,12 @@ export default function ServicePlanDetailPage() {
                     <div className="text-xl font-bold text-gray-900">{specs.storageGB} GB SSD</div>
                   </div>
                 )}
+                {specs.bandwidth && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="text-sm text-gray-500 mb-1">Băng thông</div>
+                    <div className="text-xl font-bold text-gray-900">{specs.bandwidth}</div>
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-gray-200 pt-8">

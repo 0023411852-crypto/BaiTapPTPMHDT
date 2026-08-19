@@ -5,20 +5,28 @@ import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     const fetchStats = async () => {
+      setIsLoading(true);
+      setError('');
       try {
-        const url = selectedPeriod 
+        const url = selectedPeriod
           ? `${API_BASE_URL}/api/Statistics/dashboard?period=${selectedPeriod}`
           : `${API_BASE_URL}/api/Statistics/dashboard`;
         const res = await fetchWithAuth(url);
         if (res.ok) {
           const data = await res.json();
           setStats(data);
+        } else {
+          setError('Không thể tải dữ liệu thống kê');
         }
       } catch (err) {
-        console.error('Lỗi khi tải thống kê:', err);
+        setError('Lỗi kết nối khi tải thống kê');
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchStats();
@@ -29,6 +37,23 @@ export default function AdminDashboard() {
   const totalUsers = stats?.totalUsers || 0;
   const pendingOrders = stats?.ordersByStatus?.find((s: any) => s.status === 'Pending')?.count || 0;
   const topServices = stats?.topServices || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">Đang tải dữ liệu...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Page Header */}
