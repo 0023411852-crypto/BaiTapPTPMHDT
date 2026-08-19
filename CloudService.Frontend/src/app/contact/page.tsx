@@ -20,6 +20,7 @@ export default function ContactOrderPage() {
     setIsSubmitting(true);
     
     try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154';
       const payload = {
         fullName: formData.fullName,
         email: formData.email,
@@ -28,7 +29,7 @@ export default function ContactOrderPage() {
         message: `Chu kỳ thanh toán: ${formData.billingCycle} tháng\nYêu cầu thêm: ${formData.message}`
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Contacts`, {
+      const res = await fetch(`${API_BASE_URL}/api/Contacts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

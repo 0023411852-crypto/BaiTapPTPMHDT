@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 export default function AffiliateManager() {
   const [applications, setApplications] = useState<any[]>([]);
@@ -8,10 +9,7 @@ export default function AffiliateManager() {
   const fetchApplications = async () => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/AffiliateApplications?PageNumber=1&PageSize=50`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/AffiliateApplications?PageNumber=1&PageSize=50`);
       if (res.ok) {
         const data = await res.json();
         setApplications(data.data || []);
@@ -29,13 +27,11 @@ export default function AffiliateManager() {
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {
-      const token = localStorage.getItem('token');
       const statusInt = status === 'Approved' ? 1 : status === 'Rejected' ? 2 : 0;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/AffiliateApplications/${id}/status`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/AffiliateApplications/${id}/status`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ status: statusInt })
       });

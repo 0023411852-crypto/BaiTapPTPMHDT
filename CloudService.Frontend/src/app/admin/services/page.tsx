@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 export default function ServiceManager() {
   const [activeTab, setActiveTab] = useState<'categories' | 'plans'>('plans');
@@ -40,14 +41,9 @@ export default function ServiceManager() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const headers = {
-        'Authorization': `Bearer ${token}`
-      };
-
       const [catRes, planRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServiceCategories?PageNumber=1&PageSize=50`, { headers }),
-        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans?PageNumber=1&PageSize=50`, { headers })
+        fetchWithAuth(`${API_BASE_URL}/api/ServiceCategories?PageNumber=1&PageSize=50`),
+        fetchWithAuth(`${API_BASE_URL}/api/ServicePlans?PageNumber=1&PageSize=50`)
       ]);
 
       if (catRes.ok) {
@@ -80,7 +76,6 @@ export default function ServiceManager() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
       const specifications = JSON.stringify({
         cpuCores: Number(planForm.cpuCores),
         ramGB: Number(planForm.ramGB),
@@ -88,16 +83,15 @@ export default function ServiceManager() {
       });
 
         const url = editingPlanId 
-          ? `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans/${editingPlanId}`
-          : `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans`;
+          ? `${API_BASE_URL}/api/ServicePlans/${editingPlanId}`
+          : `${API_BASE_URL}/api/ServicePlans`;
         
         const method = editingPlanId ? 'PUT' : 'POST';
 
-        const res = await fetch(url, {
+        const res = await fetchWithAuth(url, {
           method: method,
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             categoryId: planForm.categoryId,
@@ -126,10 +120,8 @@ export default function ServiceManager() {
   const handleDeletePlan = async (id: string) => {
     if(!confirm('Bạn có chắc chắn muốn xóa gói dịch vụ này?')) return;
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/ServicePlans/${id}`, {
+        method: 'DELETE'
       });
       if(!res.ok) throw new Error('Xóa thất bại');
       alert('Đã xóa thành công');
@@ -172,17 +164,15 @@ export default function ServiceManager() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
       const url = editingCatId 
-        ? `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServiceCategories/${editingCatId}`
-        : `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServiceCategories`;
+        ? `${API_BASE_URL}/api/ServiceCategories/${editingCatId}`
+        : `${API_BASE_URL}/api/ServiceCategories`;
       const method = editingCatId ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const res = await fetchWithAuth(url, {
         method: method,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           name: catForm.name,
@@ -207,10 +197,8 @@ export default function ServiceManager() {
   const handleDeleteCategory = async (id: string) => {
     if(!confirm('Bạn có chắc chắn muốn xóa danh mục này?')) return;
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServiceCategories/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/ServiceCategories/${id}`, {
+        method: 'DELETE'
       });
       if(!res.ok) throw new Error('Xóa thất bại (có thể do danh mục vẫn đang chứa gói dịch vụ)');
       alert('Đã xóa thành công');
@@ -316,7 +304,21 @@ export default function ServiceManager() {
                       </div>
                     </td>
                     <td className="py-4 px-4 text-right flex justify-end gap-2">
-                      <button className="text-gray-500 hover:text-purple-600 transition-colors p-1 bg-gray-50 rounded-md border border-gray-200" title="Xem mã QR (Tính năng Sinh mới chưa có API)" onClick={() => { if(plan.qrCodeBase64) { const win = window.open(); if(win) win.document.write(`<img src="${plan.qrCodeBase64}"/>`); } else alert('Gói này chưa có mã QR và API sinh mã đang thiếu.'); }}>
+                      <button className="text-gray-500 hover:text-purple-600 transition-colors p-1 bg-gray-50 rounded-md border border-gray-200" title="Sinh mã QR" onClick={async () => {
+                        try {
+                          const res = await fetchWithAuth(`${API_BASE_URL}/api/ServicePlans/${plan.id}/regenerate-qr`, {
+                            method: 'POST'
+                          });
+                          if (res.ok) {
+                            alert('Đã sinh lại mã QR thành công!');
+                            fetchData();
+                          } else {
+                            alert('Lỗi khi sinh mã QR');
+                          }
+                        } catch(e) {
+                          alert('Lỗi kết nối');
+                        }
+                      }}>
                         <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
                       </button>
                       <button className="text-gray-500 hover:text-blue-600 transition-colors p-1 bg-gray-50 rounded-md border border-gray-200" title="Sửa" onClick={() => handleEditPlan(plan)}>

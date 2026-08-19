@@ -70,5 +70,20 @@ namespace CloudService.WebApi.Controllers
             if (!result) return NotFound();
             return NoContent();
         }
+
+        [HttpPost("{id}/regenerate-qr")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RegenerateQRCode(Guid id)
+        {
+            try
+            {
+                var result = await _service.RegenerateQRCodeAsync(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

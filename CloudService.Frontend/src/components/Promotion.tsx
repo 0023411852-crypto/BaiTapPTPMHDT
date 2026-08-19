@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '@/utils/api';
 
 export default function Promotion() {
   const [promotions, setPromotions] = useState<any[]>([]);
@@ -9,7 +10,7 @@ export default function Promotion() {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Promotions/active`, {
+        const res = await fetch(`${API_BASE_URL}/api/Promotions/active`, {
           signal: AbortSignal.timeout(5000)
         });
         if (res.ok) {

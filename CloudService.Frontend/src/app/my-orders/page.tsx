@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useRouter } from 'next/navigation';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 export default function MyOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -23,16 +24,12 @@ export default function MyOrdersPage() {
 
         // Demo account: Hiển thị giỏ hàng trống hoặc mock
         if (!token && demoRole) {
-          setOrders([]); // Giả lập chưa có đơn hàng cho tài khoản Demo
+          setOrders([]);
           setIsLoading(false);
           return;
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Orders/my-orders?PageNumber=1&PageSize=10`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const res = await fetchWithAuth(`${API_BASE_URL}/api/Orders/my-orders?PageNumber=1&PageSize=10`);
 
         if (res.ok) {
           const result = await res.json();

@@ -4,6 +4,6 @@ namespace CloudService.Application.Interfaces
 {
     public interface IStatisticsService
     {
-        Task<DashboardStatisticsDto> GetDashboardStatisticsAsync();
+        Task<DashboardStatisticsDto> GetDashboardStatisticsAsync(string? period = null);
     }
 }

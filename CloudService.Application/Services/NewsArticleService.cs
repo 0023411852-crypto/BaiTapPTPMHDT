@@ -4,6 +4,7 @@ using CloudService.Application.DTOs.NewsArticles;
 using CloudService.Application.Interfaces;
 using CloudService.Domain.Entities;
 using CloudService.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CloudService.Application.Services
 {
@@ -18,24 +19,36 @@ namespace CloudService.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<PagedResponse<NewsArticleDto>> GetAllAsync(PaginationFilter filter, bool onlyPublished = false)
+        public async Task<PagedResponse<NewsArticleDto>> GetAllAsync(PaginationFilter filter, bool onlyPublished = false, string? search = null, string? category = null)
         {
             var repo = _unitOfWork.Repository<NewsArticle>();
-            var allData = await repo.GetAllAsync();
+            var query = repo.GetQueryable();
             
             if (onlyPublished)
             {
-                allData = allData.Where(x => x.IsPublished);
+                query = query.Where(x => x.IsPublished);
             }
 
-            var pagedData = allData
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(x => x.Title.Contains(search) || x.Content.Contains(search));
+            }
+
+            if (!string.IsNullOrEmpty(category))
+            {
+                query = query.Where(x => x.Category.Contains(category));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var pagedData = await query
                 .OrderByDescending(x => x.CreatedAt)
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize)
-                .ToList();
+                .ToListAsync();
 
             var dtos = _mapper.Map<List<NewsArticleDto>>(pagedData);
-            return new PagedResponse<NewsArticleDto>(dtos, allData.Count(), filter.PageNumber, filter.PageSize);
+            return new PagedResponse<NewsArticleDto>(dtos, totalCount, filter.PageNumber, filter.PageSize);
         }
 
         public async Task<NewsArticleDto?> GetByIdAsync(Guid id)

@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 export default function PromotionsManager() {
   const [showModal, setShowModal] = useState(false);
@@ -51,10 +52,8 @@ export default function PromotionsManager() {
   const handleDelete = async (id: string) => {
     if (!confirm('Bạn có chắc chắn muốn xóa khuyến mãi này?')) return;
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Promotions/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Promotions/${id}`, {
+        method: 'DELETE'
       });
       if (!res.ok) throw new Error('Xóa thất bại');
       alert('Đã xóa thành công!');
@@ -66,10 +65,7 @@ export default function PromotionsManager() {
 
   const fetchPromotions = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Promotions`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Promotions`);
       if (!res.ok) throw new Error('Không thể tải danh sách Khuyến mãi.');
       const data = await res.json();
       setPromotions(data.data || []);
@@ -81,7 +77,7 @@ export default function PromotionsManager() {
 
   const fetchServicePlans = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans`);
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/ServicePlans?PageNumber=1&PageSize=100`);
       if (res.ok) {
         const data = await res.json();
         setServicePlans(data.data || []);
@@ -134,7 +130,6 @@ export default function PromotionsManager() {
     
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
       const payload = {
         servicePlanId: formData.servicePlanId,
         code: formData.code,
@@ -145,14 +140,13 @@ export default function PromotionsManager() {
       };
 
       const url = editingId 
-        ? `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Promotions/${editingId}`
-        : `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Promotions`;
+        ? `${API_BASE_URL}/api/Promotions/${editingId}`
+        : `${API_BASE_URL}/api/Promotions`;
         
-      const res = await fetch(url, {
+      const res = await fetchWithAuth(url, {
         method: editingId ? 'PUT' : 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
       });

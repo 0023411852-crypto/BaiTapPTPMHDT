@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 interface ContactDto {
   id: string;
@@ -19,16 +20,9 @@ export default function ContactsManager() {
   const fetchContacts = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Contacts`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Contacts`);
       if (res.ok) {
         const data = await res.json();
-        // Backend returns Ok(contacts) directly or ApiResponse depending on wrapping.
-        // As per task instructions, we should check if data.data exists or just use data
         setContacts(data.data || data || []);
       }
     } catch (error) {
@@ -44,12 +38,7 @@ export default function ContactsManager() {
 
   const openDrawer = async (id: string) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Contacts/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Contacts/${id}`);
       if (res.ok) {
         const data = await res.json();
         setSelectedContact(data.data || data);
@@ -65,12 +54,8 @@ export default function ContactsManager() {
 
   const handleMarkAsRead = async (id: string) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Contacts/${id}/mark-as-read`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Contacts/${id}/mark-as-read`, {
+        method: 'PATCH'
       });
       if (res.ok) {
         alert('Đã đánh dấu là đã đọc!');
@@ -87,12 +72,8 @@ export default function ContactsManager() {
   const handleDelete = async (id: string) => {
     if (!confirm('Bạn có chắc chắn muốn xóa liên hệ này?')) return;
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Contacts/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Contacts/${id}`, {
+        method: 'DELETE'
       });
       if (res.ok) {
         alert('Xóa liên hệ thành công!');

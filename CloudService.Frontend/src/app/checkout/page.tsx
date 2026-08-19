@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 function CheckoutContent() {
   const router = useRouter();
@@ -40,7 +41,7 @@ function CheckoutContent() {
     // 2. Fetch plan details
     const fetchPlan = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans`);
+        const res = await fetch(`${API_BASE_URL}/api/ServicePlans`);
         const data = await res.json();
         if (res.ok && data.data) {
           const selectedPlan = data.data.find((p: any) => p.id === Number(planId));
@@ -73,9 +74,6 @@ function CheckoutContent() {
     setIsSubmitting(true);
     setErrorMsg('');
     try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Vui lòng đăng nhập lại.');
-
       if (!priceId) {
         throw new Error('Thiếu PlanPriceId. Không thể gửi request tới Backend.');
       }
@@ -86,11 +84,10 @@ function CheckoutContent() {
         CustomerNotes: notes
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Orders`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Orders`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
       });

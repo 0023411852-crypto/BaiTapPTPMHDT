@@ -11,6 +11,17 @@ namespace CloudService.Application.DTOs.Statistics
         public List<MonthlyStatisticDto> MonthlyRevenue { get; set; } = new();
         public List<OrderStatusStatisticDto> OrdersByStatus { get; set; } = new();
         public List<TopServiceStatisticDto> TopServices { get; set; } = new();
+        public List<RecentOrderDto> RecentOrders { get; set; } = new();
+    }
+
+    public class RecentOrderDto
+    {
+        public Guid Id { get; set; }
+        public string? UserName { get; set; }
+        public string? ServicePlanName { get; set; }
+        public decimal TotalAmount { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
     }
 
     public class MonthlyStatisticDto

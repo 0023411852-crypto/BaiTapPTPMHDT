@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { API_BASE_URL } from '@/utils/api'
 
 const navLinks = [
   { label: 'Trang chủ', href: '/' },
@@ -45,7 +46,7 @@ export default function Navbar() {
       const demoRole = localStorage.getItem('demo_role');
       if (token) {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users/me`, {
+          const res = await fetch(`${API_BASE_URL}/api/Users/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (res.ok) {

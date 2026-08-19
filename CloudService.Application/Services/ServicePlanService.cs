@@ -5,6 +5,7 @@ using CloudService.Application.Interfaces;
 using CloudService.Domain.Entities;
 using CloudService.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace CloudService.Application.Services
 {
@@ -12,11 +13,15 @@ namespace CloudService.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IQRCodeService _qrCodeService;
+        private readonly IConfiguration _configuration;
 
-        public ServicePlanService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ServicePlanService(IUnitOfWork unitOfWork, IMapper mapper, IQRCodeService qrCodeService, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _qrCodeService = qrCodeService;
+            _configuration = configuration;
         }
 
         public async Task<PagedResponse<ServicePlanDto>> GetAllAsync(PaginationFilter filter)
@@ -53,11 +58,15 @@ namespace CloudService.Application.Services
 
             var entity = _mapper.Map<ServicePlan>(dto);
             
-            // Auto generate a dummy QR Code URL (or base64) for this plan checkout
-            entity.QRCodeBase64 = $"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=checkout-plan-{Guid.NewGuid()}";
-
             // Save plan first to get ID
             await _unitOfWork.Repository<ServicePlan>().AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Generate real QR code pointing to service detail page
+            var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:3000";
+            var qrUrl = $"{frontendUrl}/services/{entity.Id}";
+            entity.QRCodeBase64 = _qrCodeService.GenerateQRCodeBase64(qrUrl);
+            _unitOfWork.Repository<ServicePlan>().Update(entity);
             await _unitOfWork.SaveChangesAsync();
 
             // Create PlanPrice based on the array
@@ -134,6 +143,22 @@ namespace CloudService.Application.Services
             repo.Delete(entity);
             await _unitOfWork.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<ServicePlanDto> RegenerateQRCodeAsync(Guid id)
+        {
+            var repo = _unitOfWork.Repository<ServicePlan>();
+            var entity = await repo.GetQueryable().Include(x => x.Prices).FirstOrDefaultAsync(x => x.Id == id);
+            if (entity == null) throw new Exception("Plan not found");
+
+            var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:3000";
+            var qrUrl = $"{frontendUrl}/services/{entity.Id}";
+            entity.QRCodeBase64 = _qrCodeService.GenerateQRCodeBase64(qrUrl);
+            
+            repo.Update(entity);
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<ServicePlanDto>(entity);
         }
     }
 }

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 export default function AffiliateRegistrationPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -19,9 +20,7 @@ export default function AffiliateRegistrationPage() {
         return;
       }
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/AffiliateApplications/my-application`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetchWithAuth(`${API_BASE_URL}/api/AffiliateApplications/my-application`);
         if (res.ok) {
           const data = await res.json();
           setExistingApp(data);
@@ -42,7 +41,7 @@ export default function AffiliateRegistrationPage() {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/AffiliateApplications`, {
+      const res = await fetch(`${API_BASE_URL}/api/AffiliateApplications`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

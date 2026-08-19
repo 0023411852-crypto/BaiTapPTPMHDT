@@ -1,80 +1,37 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react'
-
-const testimonials = [
-  {
-    name: 'Mia Svensson',
-    role: 'CTO',
-    company: 'Helion Systems',
-    avatar: 'MS',
-    avatarColor: '#3b82f6',
-    quote: "Chúng tôi đã chuyển 140 microservice sang NovaCloud trong 3 tuần. Độ trễ giảm 40% và chi phí hạ tầng giảm 30%. Đội ngũ SRE thực sự xuất sắc — họ đã phát hiện lỗi định tuyến BGP trước khi chúng tôi kịp nhận ra.",
-    rating: 5,
-    metric: 'Giảm 40% độ trễ',
-  },
-  {
-    name: 'Tomáš Novák',
-    role: 'Head of Infrastructure',
-    company: 'Kraken Analytics',
-    avatar: 'TN',
-    avatarColor: '#6366f1',
-    quote: "Dịch vụ Kubernetes đã tiết kiệm cho nhóm tôi hàng tuần làm việc. Tự động phục hồi node, nâng cấp chỉ với 1 click và tích hợp sẵn Prometheus. Chúng tôi giảm từ 3 kỹ sư vận hành k8s xuống còn 1 — để họ có thời gian xây dựng tính năng mới.",
-    rating: 5,
-    metric: 'Giảm 66% nhân sự vận hành',
-  },
-  {
-    name: 'Priya Krishnamurthy',
-    role: 'VP Engineering',
-    company: 'Verdant Finance',
-    avatar: 'PK',
-    avatarColor: '#10b981',
-    quote: "Tuân thủ là rào cản lớn nhất của chúng tôi. Gói Enterprise của NovaCloud cung cấp báo cáo SOC 2 Type II ngay khi cần, kiểm soát lưu trữ dữ liệu GDPR và nhật ký kiểm toán vô cùng dễ hiểu. 18 tháng không có sự cố vi phạm nào.",
-    rating: 5,
-    metric: '18 tháng không sự cố vi phạm',
-  },
-  {
-    name: 'Arjun Patel',
-    role: 'Lead DevOps',
-    company: 'Volta Games',
-    avatar: 'AP',
-    avatarColor: '#f59e0b',
-    quote: "Chúng tôi chạy máy chủ cho 2 triệu người chơi mỗi ngày. Hệ thống chống DDoS của NovaCloud đã xử lý cuộc tấn công 400 Gbps mà không người chơi nào nhận ra. Chúng tôi từng dùng 3 nhà cung cấp khác. Không ai sánh kịp.",
-    rating: 5,
-    metric: 'Hấp thụ tấn công 400 Gbps một cách vô hình',
-  },
-  {
-    name: 'Léa Fontaine',
-    role: 'Founder & CEO',
-    company: 'Luminary AI',
-    avatar: 'LF',
-    avatarColor: '#22d3ee',
-    quote: "Tính toán GPU cho AI inference với mức giá không tưởng. Cụm máy chủ A100 vật lý chúng tôi thuê có giá thấp hơn 45% so với các đối thủ đám mây khác, và thời gian khởi động lạnh giảm từ 8 giây xuống dưới 900ms.",
-    rating: 5,
-    metric: 'Giảm 45% chi phí so với các đám mây lớn',
-  },
-]
+import { API_BASE_URL } from '@/utils/api'
 
 export default function Testimonials() {
   const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     const fetchTestimonials = async () => {
+      setLoading(true);
+      setError(false);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Testimonials?onlyVisible=true`);
+        const res = await fetch(`${API_BASE_URL}/api/Testimonials?onlyVisible=true`);
         if (res.ok) {
           const result = await res.json();
           if (result.data && result.data.length > 0) {
             setData(result.data);
-            return;
+          } else {
+            setData([]);
           }
+        } else {
+          setError(true);
         }
       } catch (err) {
         console.error('Failed to fetch testimonials', err);
+        setError(true);
+      } finally {
+        setLoading(false);
       }
-      setData(testimonials);
     };
     fetchTestimonials();
   }, []);
@@ -98,7 +55,30 @@ export default function Testimonials() {
     startInterval();
   };
 
-  if (data.length === 0) return null;
+  if (loading) {
+    return (
+      <section className="relative py-28 px-6 overflow-hidden">
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full text-xs font-mono text-cyan-400 border border-cyan-400/20 bg-cyan-400/5">
+              ĐÁNH GIÁ TỪ KHÁCH HÀNG
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-primary-container mb-4">
+              Được tin dùng bởi các đội ngũ<br />
+              <span className="gradient-text">không chấp nhận gián đoạn</span>
+            </h2>
+          </div>
+          <div className="flex justify-center py-12">
+            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || data.length === 0) {
+    return null; // Don't show testimonials section if no data or error
+  }
 
   const active = data[activeIndex] || data[0];
 

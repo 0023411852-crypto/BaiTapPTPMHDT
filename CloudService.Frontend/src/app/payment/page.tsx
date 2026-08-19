@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 function PaymentContent() {
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes in seconds
@@ -33,12 +34,7 @@ function PaymentContent() {
     // Fetch QR Code
     const fetchQr = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Orders/${orderId}/payment-qr`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const res = await fetchWithAuth(`${API_BASE_URL}/api/Orders/${orderId}/payment-qr`);
         const data = await res.json();
         if (res.ok && data.data) {
           setQrCode(data.data); // data.data is expected to be a Base64 string

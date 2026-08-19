@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '@/utils/api';
 
 // DTO from API
 interface NewsArticleDto {
@@ -33,10 +34,10 @@ export default function News() {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/NewsArticles?PageNumber=1&PageSize=3&onlyPublished=true`);
+        const res = await fetch(`${API_BASE_URL}/api/NewsArticles?PageNumber=1&PageSize=3&onlyPublished=true`);
         if (res.ok) {
           const data = await res.json();
-          setArticles(data.items || []);
+          setArticles(data.data || []);
         }
       } catch (error) {
         console.error('Failed to fetch news articles:', error);

@@ -1,18 +1,18 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('');
 
   useEffect(() => {
     const fetchStats = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
       try {
-        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}`;
-        const res = await fetch(`${API_BASE_URL}/api/Statistics/dashboard`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const url = selectedPeriod 
+          ? `${API_BASE_URL}/api/Statistics/dashboard?period=${selectedPeriod}`
+          : `${API_BASE_URL}/api/Statistics/dashboard`;
+        const res = await fetchWithAuth(url);
         if (res.ok) {
           const data = await res.json();
           setStats(data);
@@ -22,7 +22,7 @@ export default function AdminDashboard() {
       }
     };
     fetchStats();
-  }, []);
+  }, [selectedPeriod]);
 
   const totalOrders = stats?.totalOrders || 0;
   const totalRevenue = stats?.totalRevenue || 0;
@@ -41,10 +41,31 @@ export default function AdminDashboard() {
           </nav>
           <h2 className="text-2xl font-bold text-gray-900">Tổng quan hệ thống</h2>
         </div>
-        <div className="flex items-center bg-white border border-gray-200 rounded-lg p-1" title="API chưa hỗ trợ lọc theo thời gian">
-          <button disabled className="px-4 py-1.5 text-sm font-medium rounded-md bg-purple-500/20 text-purple-300 opacity-50 cursor-not-allowed">7 ngày qua</button>
-          <button disabled className="px-4 py-1.5 text-sm font-medium rounded-md text-gray-400 opacity-50 cursor-not-allowed">30 ngày</button>
-          <button disabled className="px-4 py-1.5 text-sm font-medium rounded-md text-gray-400 opacity-50 cursor-not-allowed">Tháng này</button>
+        <div className="flex items-center bg-white border border-gray-200 rounded-lg p-1">
+          <button 
+            onClick={() => setSelectedPeriod('')}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md ${selectedPeriod === '' ? 'bg-purple-500/20 text-purple-600' : 'text-gray-500 hover:bg-gray-100'}`}
+          >
+            Tất cả
+          </button>
+          <button 
+            onClick={() => setSelectedPeriod('7days')}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md ${selectedPeriod === '7days' ? 'bg-purple-500/20 text-purple-600' : 'text-gray-500 hover:bg-gray-100'}`}
+          >
+            7 ngày qua
+          </button>
+          <button 
+            onClick={() => setSelectedPeriod('30days')}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md ${selectedPeriod === '30days' ? 'bg-purple-500/20 text-purple-600' : 'text-gray-500 hover:bg-gray-100'}`}
+          >
+            30 ngày
+          </button>
+          <button 
+            onClick={() => setSelectedPeriod('thismonth')}
+            className={`px-4 py-1.5 text-sm font-medium rounded-md ${selectedPeriod === 'thismonth' ? 'bg-purple-500/20 text-purple-600' : 'text-gray-500 hover:bg-gray-100'}`}
+          >
+            Tháng này
+          </button>
         </div>
       </div>
 
@@ -62,11 +83,6 @@ export default function AdminDashboard() {
               <span className="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 mt-auto">
-            <span className="material-symbols-outlined text-sm text-green-400" data-icon="trending_up">trending_up</span>
-            <span className="text-green-400 font-medium text-sm">+12.5%</span>
-            <span className="text-gray-500 text-xs">so với tuần trước</span>
-          </div>
         </div>
 
         {/* Card 2 */}
@@ -83,11 +99,6 @@ export default function AdminDashboard() {
               <span className="material-symbols-outlined" data-icon="payments">payments</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 mt-auto">
-            <span className="material-symbols-outlined text-sm text-green-400" data-icon="trending_up">trending_up</span>
-            <span className="text-green-400 font-medium text-sm">+8.2%</span>
-            <span className="text-gray-500 text-xs">so với tháng trước</span>
-          </div>
         </div>
 
         {/* Card 3 */}
@@ -102,11 +113,6 @@ export default function AdminDashboard() {
               <span className="material-symbols-outlined" data-icon="person_add">person_add</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 mt-auto">
-            <span className="material-symbols-outlined text-sm text-green-400" data-icon="trending_up">trending_up</span>
-            <span className="text-green-400 font-medium text-sm">+5.4%</span>
-            <span className="text-gray-500 text-xs">so với tuần trước</span>
-          </div>
         </div>
 
         {/* Card 4 */}
@@ -117,15 +123,14 @@ export default function AdminDashboard() {
               <p className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-1">Đơn chờ xử lý</p>
               <h3 className="text-[32px] font-bold text-red-500 leading-none mt-2 flex items-center gap-3">
                 {pendingOrders}
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-500/20 text-red-400">Cần chú ý</span>
+                {pendingOrders > 0 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-500/20 text-red-400">Cần chú ý</span>
+                )}
               </h3>
             </div>
             <div className="p-3 bg-red-500/10 rounded-lg text-red-500 group-hover:scale-110 transition-transform">
               <span className="material-symbols-outlined" data-icon="pending_actions">pending_actions</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2 mt-auto">
-            <span className="text-gray-500 text-xs">3 đơn hàng quá 24h</span>
           </div>
         </div>
       </div>

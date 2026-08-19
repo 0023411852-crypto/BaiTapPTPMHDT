@@ -13,7 +13,6 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
       try {
-        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}`;
         const refreshRes = await fetch(`${API_BASE_URL}/api/Auth/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -36,15 +35,18 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
           // Refresh failed
           localStorage.removeItem('token');
           localStorage.removeItem('refreshToken');
+          localStorage.removeItem('demo_role');
           window.location.href = '/login';
         }
       } catch (e) {
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('demo_role');
         window.location.href = '/login';
       }
     } else {
       localStorage.removeItem('token');
+      localStorage.removeItem('demo_role');
       window.location.href = '/login';
     }
   }

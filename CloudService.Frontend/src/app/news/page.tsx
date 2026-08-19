@@ -1,8 +1,9 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import { API_BASE_URL } from '@/utils/api';
 
 interface NewsArticleDto {
   id: string;
@@ -34,24 +35,39 @@ export default function NewsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [filterCategory, setFilterCategory] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const pageSize = 6;
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Reset page when filter or search changes
+  useEffect(() => {
+    setPage(1);
+  }, [filterCategory, debouncedSearch]);
 
   useEffect(() => {
     const fetchArticles = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/NewsArticles?PageNumber=${page}&PageSize=${pageSize}&onlyPublished=true`);
+        const params = new URLSearchParams({
+          PageNumber: page.toString(),
+          PageSize: pageSize.toString(),
+          onlyPublished: 'true'
+        });
+        
+        if (debouncedSearch) params.append('search', debouncedSearch);
+        if (filterCategory) params.append('category', filterCategory);
+
+        const res = await fetch(`${API_BASE_URL}/api/NewsArticles?${params.toString()}`);
         if (res.ok) {
           const data = await res.json();
-          // Lọc dữ liệu client-side nếu API không hỗ trợ query string Category
-          let fetchedItems = data.items || [];
-          if (filterCategory) {
-            fetchedItems = fetchedItems.filter((a: NewsArticleDto) => (a.category || '').toLowerCase().includes(filterCategory.toLowerCase()));
-          }
-          if (searchQuery) {
-            fetchedItems = fetchedItems.filter((a: NewsArticleDto) => (a.title || '').toLowerCase().includes(searchQuery.toLowerCase()) || (a.content || '').toLowerCase().includes(searchQuery.toLowerCase()));
-          }
-          setArticles(fetchedItems);
+          setArticles(data.data || []);
           setTotalPages(data.totalPages || 1);
         }
       } catch (error) {
@@ -62,7 +78,7 @@ export default function NewsPage() {
     };
     
     fetchArticles();
-  }, [page, filterCategory, searchQuery]);
+  }, [page, filterCategory, debouncedSearch]);
 
   return (
     <>

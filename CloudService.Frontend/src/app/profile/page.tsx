@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<{ fullName: string; email: string } | null>(null);
@@ -30,11 +31,7 @@ export default function ProfilePage() {
           return;
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users/me`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const res = await fetchWithAuth(`${API_BASE_URL}/api/Users/me`);
 
         if (res.ok) {
           const data = await res.json();

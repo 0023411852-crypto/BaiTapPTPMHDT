@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 export default function UserManager() {
   const [users, setUsers] = useState<any[]>([]);
@@ -14,10 +15,7 @@ export default function UserManager() {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users?PageNumber=1&PageSize=50`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Users?PageNumber=1&PageSize=50`);
       if (res.ok) {
         const data = await res.json();
         setUsers(data.data || []);
@@ -35,12 +33,10 @@ export default function UserManager() {
 
   const handleUpdateStatus = async (userId: string, currentIsActive: boolean) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users/${userId}/status`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Users/${userId}/status`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ isActive: !currentIsActive })
       });

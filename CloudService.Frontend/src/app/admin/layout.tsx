@@ -32,11 +32,11 @@ export default function AdminLayout({
     { name: 'Tổng quan', path: '/admin', icon: 'dashboard', roles: ['Admin'] },
     { name: 'Dịch vụ', path: '/admin/services', icon: 'cloud_queue', roles: ['Admin'] },
     { name: 'Người dùng', path: '/admin/users', icon: 'group', roles: ['Admin'] },
-    { name: 'Đơn hàng', path: '/admin/orders', icon: 'receipt_long', roles: ['Admin', 'Editor'] },
+    { name: 'Đơn hàng', path: '/admin/orders', icon: 'receipt_long', roles: ['Admin'] },
     { name: 'Tin tức', path: '/admin/news', icon: 'article', roles: ['Admin', 'Editor'] },
-    { name: 'Đối tác', path: '/admin/affiliates', icon: 'handshake', roles: ['Admin', 'Editor'] },
+    { name: 'Đối tác', path: '/admin/affiliates', icon: 'handshake', roles: ['Admin'] },
     { name: 'Nhật ký hệ thống', path: '/admin/logs', icon: 'manage_search', roles: ['Admin'] },
-    { name: 'Liên hệ', path: '/admin/contacts', icon: 'contact_support', roles: ['Admin', 'Editor'] },
+    { name: 'Liên hệ', path: '/admin/contacts', icon: 'contact_support', roles: ['Admin'] },
   ];
 
   const filteredMenu = menuItems.filter(item => item.roles.includes(role));

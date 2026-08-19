@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { API_BASE_URL } from '@/utils/api'
 
 type Billing = 'monthly' | 'annual'
 
@@ -16,7 +17,7 @@ export default function Pricing() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/ServicePlans?PageNumber=1&PageSize=10`, {
+        const res = await fetch(`${API_BASE_URL}/api/ServicePlans?PageNumber=1&PageSize=10`, {
           signal: AbortSignal.timeout(5000)
         });
         const data = await res.json();
@@ -25,11 +26,20 @@ export default function Pricing() {
             const monthlyPriceObj = p.prices?.find((pr: any) => pr.billingCycle === 1);
             const annualPriceObj = p.prices?.find((pr: any) => pr.billingCycle === 12);
 
+            // Parse specifications as JSON (backend stores as JSON format)
+            let specsList: string[] = [];
+            try {
+              const specsObj = p.specifications ? JSON.parse(p.specifications) : {};
+              specsList = Object.entries(specsObj).map(([key, value]) => `${key}: ${value}`);
+            } catch {
+              specsList = ['Thông số mặc định'];
+            }
+
             return {
               name: p.name,
               desc: p.description || 'Gói dịch vụ mặc định',
-              specs: p.specifications ? p.specifications.split(',').map((s: string) => s.trim()) : ['Thông số mặc định'],
-              features: ['Tiện ích 1', 'Tiện ích 2'],
+              specs: specsList,
+              qrCode: p.qrCodeBase64 || null,
               id: p.id,
               
               monthlyPriceId: monthlyPriceObj?.id || null,
@@ -184,21 +194,12 @@ export default function Pricing() {
                 </ul>
               </div>
 
-              {/* Features */}
-              <div className="mb-8 flex-1">
-                <div className="text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wider">Tiện ích kèm theo</div>
-                <ul className="space-y-2.5">
-                  {plan.features.map((feature: string) => (
-                    <li key={feature} className="flex items-start gap-2.5 text-sm text-on-surface-variant">
-                      <svg className="w-4 h-4 mt-0.5 flex-shrink-0" viewBox="0 0 16 16" fill="none" style={{ color: plan.color }}>
-                        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.2" opacity="0.4"/>
-                        <path d="M5 8L7 10L11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {/* QR Code */}
+              {plan.qrCode && (
+                <div className="mb-4 flex justify-center">
+                  <img src={plan.qrCode} alt={`QR Code for ${plan.name}`} className="w-24 h-24 rounded-lg border border-slate-700/50" />
+                </div>
+              )}
 
               <Link
                 href={`/checkout?planId=${plan.id || ''}&priceId=${(billing === 'monthly' ? plan.monthlyPriceId : plan.annualPriceId) || ''}&billing=${billing}`}

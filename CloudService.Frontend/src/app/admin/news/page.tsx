@@ -14,10 +14,10 @@ export default function NewsManager() {
   const fetchArticles = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/NewsArticles?PageNumber=1&PageSize=100`);
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/NewsArticles?PageNumber=1&PageSize=100`);
       if (res.ok) {
         const data = await res.json();
-        setArticles(data.items || []);
+        setArticles(data.data || []);
       }
     } catch (err) {
       console.error('Error fetching articles', err);

@@ -17,14 +17,35 @@ namespace CloudService.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<DashboardStatisticsDto> GetDashboardStatisticsAsync()
+        public async Task<DashboardStatisticsDto> GetDashboardStatisticsAsync(string? period = null)
         {
             var orderRepo = _unitOfWork.Repository<OrderRequest>();
             var userRepo = _unitOfWork.Repository<AppUser>();
             var planRepo = _unitOfWork.Repository<ServicePlan>();
 
             var ordersQuery = orderRepo.GetQueryable();
-            var allOrders = await ordersQuery.Include(x => x.ServicePlan).ToListAsync();
+            var allOrdersQuery = ordersQuery.Include(x => x.ServicePlan).Include(x => x.User);
+            
+            // Apply period filter
+            DateTime? startDate = null;
+            if (!string.IsNullOrEmpty(period))
+            {
+                var now = DateTime.UtcNow;
+                startDate = period switch
+                {
+                    "7days" => now.AddDays(-7),
+                    "30days" => now.AddDays(-30),
+                    "thismonth" => new DateTime(now.Year, now.Month, 1),
+                    _ => null
+                };
+            }
+
+            if (startDate.HasValue)
+            {
+                allOrdersQuery = allOrdersQuery.Where(x => x.OrderDate >= startDate.Value);
+            }
+
+            var allOrders = await allOrdersQuery.ToListAsync();
             
             var usersQuery = userRepo.GetQueryable();
             var plansQuery = planRepo.GetQueryable();
@@ -82,6 +103,21 @@ namespace CloudService.Application.Services
                 })
                 .OrderByDescending(x => x.OrderCount)
                 .Take(5)
+                .ToList();
+
+            // Recent Orders (last 5)
+            result.RecentOrders = allOrders
+                .OrderByDescending(x => x.OrderDate)
+                .Take(5)
+                .Select(x => new RecentOrderDto
+                {
+                    Id = x.Id,
+                    UserName = x.User?.FullName ?? x.User?.Email,
+                    ServicePlanName = x.ServicePlan?.Name,
+                    TotalAmount = x.TotalAmount,
+                    Status = x.Status.ToString(),
+                    CreatedAt = x.OrderDate
+                })
                 .ToList();
 
             return result;

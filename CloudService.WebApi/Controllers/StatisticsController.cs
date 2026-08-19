@@ -17,11 +17,11 @@ namespace CloudService.WebApi.Controllers
         }
 
         [HttpGet("dashboard")]
-        public async Task<IActionResult> GetDashboardStatistics()
+        public async Task<IActionResult> GetDashboardStatistics([FromQuery] string? period = null)
         {
             try
             {
-                var stats = await _statisticsService.GetDashboardStatisticsAsync();
+                var stats = await _statisticsService.GetDashboardStatisticsAsync(period);
                 return Ok(stats);
             }
             catch (Exception ex)

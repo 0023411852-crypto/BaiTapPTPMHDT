@@ -2,13 +2,14 @@ import React from 'react';
 import Link from 'next/link';
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
+import { API_BASE_URL } from '@/utils/api';
 
 export default async function NewsDetail({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   
   let article = null;
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/NewsArticles/${resolvedParams.id}`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE_URL}/api/NewsArticles/${resolvedParams.id}`, { cache: 'no-store' });
     if (res.ok) {
       article = await res.json();
     }
