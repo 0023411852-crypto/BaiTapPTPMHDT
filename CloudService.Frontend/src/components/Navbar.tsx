@@ -7,6 +7,7 @@ import { fetchWithAuth, API_BASE_URL } from '@/utils/api'
 
 const navLinks = [
   { label: 'Trang chủ', href: '/' },
+  { label: 'Về chúng tôi', href: '/about' },
   { label: 'Dịch vụ', href: '/services' },
   { label: 'Bảng giá', href: '/pricing' },
   { label: 'Tin tức', href: '/news' },

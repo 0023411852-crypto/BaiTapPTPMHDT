@@ -21,7 +21,7 @@ export default function ServiceManager() {
     cpuCores: 2,
     ramGB: 4,
     storageGB: 50,
-    bandwidth: '100 Mbps',
+    bandwidth: '',
     prices: [
       { months: 1, basePrice: 0, discountPercentage: 0 },
       { months: 3, basePrice: 0, discountPercentage: 0 },
@@ -134,7 +134,7 @@ export default function ServiceManager() {
   const handleEditPlan = (plan: any) => {
     setEditingPlanId(plan.id);
     setActiveTab('plans');
-    let specs = { cpuCores: 2, ramGB: 4, storageGB: 50, bandwidth: '100 Mbps' };
+    let specs = { cpuCores: 2, ramGB: 4, storageGB: 50, bandwidth: '' };
     try { if(plan.specifications) specs = JSON.parse(plan.specifications); } catch(e){}
 
     // Merge existing prices
@@ -157,7 +157,7 @@ export default function ServiceManager() {
       cpuCores: specs.cpuCores,
       ramGB: specs.ramGB,
       storageGB: specs.storageGB,
-      bandwidth: specs.bandwidth || '100 Mbps',
+      bandwidth: specs.bandwidth || '',
       prices: mergedPrices
     });
     setShowModal(true);
@@ -398,7 +398,7 @@ export default function ServiceManager() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Băng thông</label>
-                  <input type="text" required value={planForm.bandwidth} onChange={e => setPlanForm({...planForm, bandwidth: e.target.value})} className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:border-blue-500" placeholder="Ví dụ: 100 Mbps, 1 Gbps" />
+                  <input type="text" value={planForm.bandwidth} onChange={e => setPlanForm({...planForm, bandwidth: e.target.value})} className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:border-blue-500" placeholder="Ví dụ: 100 Mbps, 1 Gbps" />
                 </div>
                 
                 <div className="mt-4 border-t border-gray-200 pt-4">
