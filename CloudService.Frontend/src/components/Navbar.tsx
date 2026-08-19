@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { API_BASE_URL } from '@/utils/api'
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api'
 
 const navLinks = [
   { label: 'Trang chủ', href: '/' },
@@ -46,9 +46,7 @@ export default function Navbar() {
       const demoRole = localStorage.getItem('demo_role');
       if (token) {
         try {
-          const res = await fetch(`${API_BASE_URL}/api/Users/me`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          const res = await fetchWithAuth(`${API_BASE_URL}/api/Users/me`);
           if (res.ok) {
             const data = await res.json();
             setUser({ fullName: data.fullName, role: data.role || 'Customer' });

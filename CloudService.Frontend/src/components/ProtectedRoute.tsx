@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { API_BASE_URL } from '@/utils/api';
+import { fetchWithAuth, API_BASE_URL } from '@/utils/api';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -52,9 +52,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
       // 2. Nếu có token, fetch API để lấy role (Nếu cần thiết, có thể bỏ qua nếu decode trực tiếp JWT)
       if (token) {
         try {
-          const res = await fetch(`${API_BASE_URL}/api/Users/me`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          const res = await fetchWithAuth(`${API_BASE_URL}/api/Users/me`);
           if (res.ok) {
             const data = await res.json();
             userRole = data.role || 'Customer';

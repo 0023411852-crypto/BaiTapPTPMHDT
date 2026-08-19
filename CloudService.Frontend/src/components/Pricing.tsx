@@ -13,18 +13,32 @@ export default function Pricing() {
   const [billing, setBilling] = useState<Billing>('monthly')
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null)
   const [apiPlans, setApiPlans] = useState<any[]>([])
+  const [promotions, setPromotions] = useState<any[]>([])
 
   useEffect(() => {
-    const fetchPlans = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/ServicePlans?PageNumber=1&PageSize=10`, {
-          signal: AbortSignal.timeout(5000)
-        });
-        const data = await res.json();
-        if (res.ok && data.data) {
-          const mappedPlans = data.data.map((p: any, index: number) => {
+        const [plansRes, promosRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/ServicePlans?PageNumber=1&PageSize=10`, {
+            signal: AbortSignal.timeout(5000)
+          }),
+          fetch(`${API_BASE_URL}/api/Promotions/active?PageNumber=1&PageSize=50`, {
+            signal: AbortSignal.timeout(5000)
+          })
+        ]);
+        
+        const plansData = await plansRes.json();
+        const promosData = await promosRes.json();
+        
+        if (plansRes.ok && plansData.data) {
+          const mappedPlans = plansData.data.map((p: any, index: number) => {
             const monthlyPriceObj = p.prices?.find((pr: any) => pr.billingCycle === 1);
             const annualPriceObj = p.prices?.find((pr: any) => pr.billingCycle === 12);
+
+            // Find active promotion for this plan
+            const activePromo = promosData.data?.find((promo: any) => 
+              promo.servicePlanId === p.id && promo.isActive
+            );
 
             // Parse specifications as JSON (backend stores as JSON format)
             let specsList: string[] = [];
@@ -49,19 +63,26 @@ export default function Pricing() {
               annualPrice: annualPriceObj?.price || 0,
               setupFee: monthlyPriceObj?.setupFee || annualPriceObj?.setupFee || 0,
               
-              highlight: index === 1,
-              tag: index === 1 ? 'Phổ biến' : null,
-              color: index === 1 ? '#3b82f6' : '#64748b',
+              discountPercentage: activePromo?.discountPercentage || 0,
+              promoCode: activePromo?.code || null,
+              
+              highlight: index === 1 || activePromo,
+              tag: activePromo ? `Giảm ${activePromo.discountPercentage}%` : (index === 1 ? 'Phổ biến' : null),
+              color: activePromo ? '#10b981' : (index === 1 ? '#3b82f6' : '#64748b'),
               cta: 'Mua Ngay'
             };
           });
           setApiPlans(mappedPlans);
         }
+        
+        if (promosRes.ok && promosData.data) {
+          setPromotions(promosData.data);
+        }
       } catch(e) {
-        console.error('Lỗi khi fetch gói cước:', e);
+        console.error('Lỗi khi fetch dữ liệu:', e);
       }
     };
-    fetchPlans();
+    fetchData();
   }, []);
 
   const displayPlans = apiPlans;
@@ -163,6 +184,11 @@ export default function Pricing() {
                 {plan.monthlyPrice === 0 && plan.annualPrice === 0 && (
                   <div className="text-xs text-red-400 font-mono mt-0.5 mb-1.5 bg-red-400/10 p-2 rounded">
                     ⚠️ API chưa cấp giá thật
+                  </div>
+                )}
+                {plan.discountPercentage > 0 && (
+                  <div className="text-xs text-green-400 font-mono mt-0.5 mb-1.5 bg-green-400/10 p-2 rounded">
+                    🎉 Giảm {plan.discountPercentage}% với mã: {plan.promoCode}
                   </div>
                 )}
                 {billing === 'annual' && plan.annualPrice > 0 && (

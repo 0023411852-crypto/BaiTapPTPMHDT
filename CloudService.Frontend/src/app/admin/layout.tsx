@@ -41,6 +41,26 @@ export default function AdminLayout({
 
   const filteredMenu = menuItems.filter(item => item.roles.includes(role));
 
+  const getRouteGuard = () => {
+    if (pathname === '/admin' || pathname === '/admin/services' || pathname === '/admin/users' || pathname === '/admin/orders' || pathname === '/admin/affiliates' || pathname === '/admin/logs' || pathname === '/admin/contacts' || pathname === '/admin/promotions') {
+      return 'Admin';
+    }
+    return null;
+  };
+
+  const requiredRole = getRouteGuard();
+
+  if (requiredRole === 'Admin' && role !== 'Admin') {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Không có quyền truy cập</h1>
+          <p className="text-gray-500">Bạn cần quyền Admin để truy cập trang này.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ProtectedRoute allowedRoles={['Admin', 'Editor']}>
       <div className="flex h-screen overflow-hidden bg-gray-50 text-gray-600 font-sans">

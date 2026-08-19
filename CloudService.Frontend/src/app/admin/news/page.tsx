@@ -246,6 +246,13 @@ export default function NewsManager() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nội dung chi tiết (HTML) *</label>
+                <div className="flex gap-2 mb-2">
+                  <button type="button" onClick={() => setForm({...form, content: form.content + '<p></p>'})} className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">Paragraph</button>
+                  <button type="button" onClick={() => setForm({...form, content: form.content + '<h2></h2>'})} className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">H2</button>
+                  <button type="button" onClick={() => setForm({...form, content: form.content + '<strong></strong>'})} className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">Bold</button>
+                  <button type="button" onClick={() => setForm({...form, content: form.content + '<ul><li></li></ul>'})} className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">List</button>
+                  <button type="button" onClick={() => setForm({...form, content: form.content + '<a href=""></a>'})} className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">Link</button>
+                </div>
                 <textarea required value={form.content} onChange={e => setForm({...form, content: e.target.value})} className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:border-blue-500 font-mono text-sm" rows={8} placeholder="<p>Nhập nội dung HTML ở đây...</p>"></textarea>
                 <p className="text-xs text-gray-500 mt-1">Hỗ trợ các thẻ HTML cơ bản (p, h2, ul, li, strong...).</p>
               </div>

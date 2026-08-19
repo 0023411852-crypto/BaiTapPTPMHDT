@@ -67,12 +67,10 @@ export default function ProfilePage() {
     setIsUpdatingProfile(true);
 
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users/me/profile`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Users/me/profile`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ fullName: editFullName })
       });
@@ -102,12 +100,10 @@ export default function ProfilePage() {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5154'}/api/Users/me/password`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/api/Users/me/password`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ currentPassword: oldPassword, newPassword })
       });

@@ -140,7 +140,12 @@ export default function AdminDashboard() {
         {/* Chart Card (70%) */}
         <div className="bg-white backdrop-blur-xl border border-gray-200 rounded-xl p-6 lg:col-span-2 flex flex-col">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-gray-900">Đơn hàng theo tháng</h3>
+            <h3 className="text-lg font-bold text-gray-900">
+              {selectedPeriod === '7days' ? 'Đơn hàng 7 ngày qua' :
+               selectedPeriod === '30days' ? 'Đơn hàng 30 ngày qua' :
+               selectedPeriod === 'thismonth' ? 'Đơn hàng tháng này' :
+               'Đơn hàng theo tháng'}
+            </h3>
             <button className="text-gray-500 hover:text-blue-600 transition-colors">
               <span className="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
             </button>

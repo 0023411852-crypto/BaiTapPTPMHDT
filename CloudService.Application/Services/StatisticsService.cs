@@ -24,7 +24,7 @@ namespace CloudService.Application.Services
             var planRepo = _unitOfWork.Repository<ServicePlan>();
 
             var ordersQuery = orderRepo.GetQueryable();
-            var allOrdersQuery = ordersQuery.Include(x => x.ServicePlan).Include(x => x.User);
+            var allOrdersQuery = ordersQuery.Include(x => x.ServicePlan).Include(x => x.User).AsQueryable();
             
             // Apply period filter
             DateTime? startDate = null;
@@ -68,28 +68,112 @@ namespace CloudService.Application.Services
                 })
                 .ToList();
 
-            // Monthly Statistics (Last 6 months)
-            var last6Months = Enumerable.Range(0, 6)
-                .Select(i => DateTime.UtcNow.AddMonths(-i))
-                .OrderBy(d => d)
-                .ToList();
-
-            foreach (var month in last6Months)
+            // Chart Statistics based on period
+            if (period == "7days")
             {
-                var monthName = month.ToString("MMM yyyy", CultureInfo.InvariantCulture);
-                var monthOrders = allOrders.Where(x => x.OrderDate.Year == month.Year && x.OrderDate.Month == month.Month).ToList();
+                // Daily data for last 7 days
+                var last7Days = Enumerable.Range(0, 7)
+                    .Select(i => DateTime.UtcNow.AddDays(-i).Date)
+                    .OrderBy(d => d)
+                    .ToList();
 
-                result.MonthlyOrders.Add(new MonthlyStatisticDto
+                foreach (var day in last7Days)
                 {
-                    Month = monthName,
-                    Value = monthOrders.Count
-                });
+                    var dayName = day.ToString("dd/MM", CultureInfo.InvariantCulture);
+                    var dayOrders = allOrders.Where(x => x.OrderDate.Date == day).ToList();
 
-                result.MonthlyRevenue.Add(new MonthlyStatisticDto
+                    result.MonthlyOrders.Add(new MonthlyStatisticDto
+                    {
+                        Month = dayName,
+                        Value = dayOrders.Count
+                    });
+
+                    result.MonthlyRevenue.Add(new MonthlyStatisticDto
+                    {
+                        Month = dayName,
+                        Value = dayOrders.Where(x => x.Status == OrderStatus.Completed).Sum(x => x.TotalAmount)
+                    });
+                }
+            }
+            else if (period == "30days")
+            {
+                // Daily data for last 30 days
+                var last30Days = Enumerable.Range(0, 30)
+                    .Select(i => DateTime.UtcNow.AddDays(-i).Date)
+                    .OrderBy(d => d)
+                    .ToList();
+
+                foreach (var day in last30Days)
                 {
-                    Month = monthName,
-                    Value = monthOrders.Where(x => x.Status == OrderStatus.Completed).Sum(x => x.TotalAmount)
-                });
+                    var dayName = day.ToString("dd/MM", CultureInfo.InvariantCulture);
+                    var dayOrders = allOrders.Where(x => x.OrderDate.Date == day).ToList();
+
+                    result.MonthlyOrders.Add(new MonthlyStatisticDto
+                    {
+                        Month = dayName,
+                        Value = dayOrders.Count
+                    });
+
+                    result.MonthlyRevenue.Add(new MonthlyStatisticDto
+                    {
+                        Month = dayName,
+                        Value = dayOrders.Where(x => x.Status == OrderStatus.Completed).Sum(x => x.TotalAmount)
+                    });
+                }
+            }
+            else if (period == "thismonth")
+            {
+                // Daily data for current month
+                var now = DateTime.UtcNow;
+                var daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
+                var currentMonthDays = Enumerable.Range(1, daysInMonth)
+                    .Select(i => new DateTime(now.Year, now.Month, i))
+                    .Where(d => d <= now)
+                    .ToList();
+
+                foreach (var day in currentMonthDays)
+                {
+                    var dayName = day.ToString("dd/MM", CultureInfo.InvariantCulture);
+                    var dayOrders = allOrders.Where(x => x.OrderDate.Date == day).ToList();
+
+                    result.MonthlyOrders.Add(new MonthlyStatisticDto
+                    {
+                        Month = dayName,
+                        Value = dayOrders.Count
+                    });
+
+                    result.MonthlyRevenue.Add(new MonthlyStatisticDto
+                    {
+                        Month = dayName,
+                        Value = dayOrders.Where(x => x.Status == OrderStatus.Completed).Sum(x => x.TotalAmount)
+                    });
+                }
+            }
+            else
+            {
+                // Default: Monthly Statistics (Last 6 months)
+                var last6Months = Enumerable.Range(0, 6)
+                    .Select(i => DateTime.UtcNow.AddMonths(-i))
+                    .OrderBy(d => d)
+                    .ToList();
+
+                foreach (var month in last6Months)
+                {
+                    var monthName = month.ToString("MMM yyyy", CultureInfo.InvariantCulture);
+                    var monthOrders = allOrders.Where(x => x.OrderDate.Year == month.Year && x.OrderDate.Month == month.Month).ToList();
+
+                    result.MonthlyOrders.Add(new MonthlyStatisticDto
+                    {
+                        Month = monthName,
+                        Value = monthOrders.Count
+                    });
+
+                    result.MonthlyRevenue.Add(new MonthlyStatisticDto
+                    {
+                        Month = monthName,
+                        Value = monthOrders.Where(x => x.Status == OrderStatus.Completed).Sum(x => x.TotalAmount)
+                    });
+                }
             }
 
             // Top Services
